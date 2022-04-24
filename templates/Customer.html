@@ -20,7 +20,7 @@
         <div class="navbar-nav">
           <a class="nav-item nav-link" href="/Customer/Account">Account&nbsp;</a>
           <a class="nav-item nav-link" href="#">Payment&nbsp;</a>
-          <a class="nav-item nav-link" href="/Customer/BankTransactions">Transactions&nbsp;</a>
+          <a class="nav-item nav-link" href="/Customer/Transactions">Transactions&nbsp;</a>
           <a class="nav-item nav-link" href="#">Debit Card&nbsp;</a>
           <a class="nav-item nav-link" href="#">Deposits &nbsp;</a>
           <a class="nav-item nav-link" href="#">Loans &nbsp;</a>
@@ -30,8 +30,36 @@
         </div>
       </div>
     </nav>
-    <h1> Customer Name : {{ data[0][1]}}  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  {{ data[0][2]}}  </h1>
-    <h1> Customer email:   {{ data[0][5]}}   </h1>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Customer ID</th>
+          <th scope="col">Full Name </th>
+          <th scope="col">DOB</th>
+          <th scope="col">Sex</th>
+          <th scope="col">Email</th>
+          <th scope="col">Phone number</th>
+
+        </tr>
+      </thead>
+      <tbody>
+          {%for i in data%}
+                  <tr>
+                      <th scope="row">{{i[0]}}</th>
+                       <td>{{i[1]}} &nbsp;&nbsp; {{i[2]}}</td>
+                       <td>{{i[3]}}</td>
+                       <td>{{i[4]}}</td>
+                       <td>{{i[5]}}</td>
+                       <td>{{i[7]}}</td>
+
+
+                  </tr>
+          {%endfor%}
+        
+        
+      </tbody>
+    </table>
+    
    
     <!-- Optional JavaScript; choose one of the two! -->
 

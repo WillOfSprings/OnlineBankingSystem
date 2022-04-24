@@ -47,9 +47,11 @@ def Customer():
     if 'usr' in session:
         print("not there yet.............")
 
-        q=f"SELECT * FROM customer WHERE first_name= '{session['usr']['username']}';"
+        q=f"SELECT * FROM customer WHERE c_id= '{session['usr']['username']}';"
         mycursor.execute(q)
         customerDetails = mycursor.fetchall()
+
+        
 
         return render_template("Customer.html",data=customerDetails)
 
@@ -86,7 +88,7 @@ def CustomerAccount():
         return render_template("CustomerAccount.html",data=accountdetails,dc = debitcardDetails,cc = creditcardDetails)
 
 
-@app.route("/Customer/BankTransactions")
+@app.route("/Customer/Transactions")
 def BankTransactions():
     if 'usr' in session:
         q=f"SELECT * FROM customer WHERE first_name= '{session['usr']['username']}';"
@@ -99,10 +101,10 @@ def BankTransactions():
 
         q=f"select * from bank_transactions where sender = '{customer_id }' or receiver = '{customer_id }' ; "
         mycursor.execute(q)
-        BankTransactionsdetails = mycursor.fetchall()
-        print(BankTransactionsdetails)
+        Transactionsdetails = mycursor.fetchall()
+        print(Transactionsdetails)
 
-        return render_template("BankTransactions.html",data=BankTransactionsdetails,len = len(BankTransactionsdetails))
+        return render_template("Transactions.html",data=Transactionsdetails,len = len(Transactionsdetails))
 
 
 
