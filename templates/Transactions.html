@@ -11,7 +11,7 @@
     <title>Hello, world!</title>
   </head>
   <body>
-    <h1>{{ data }}</h1>
+    
   
 
         <table class="table">
@@ -21,20 +21,71 @@
                 <th scope="col">Sender</th>
                 <th scope="col">Receiver</th>
                 <th scope="col">Ammount</th>
+                <th scope="col">Via</th>
               </tr>
             </thead>
             <tbody>
-                {%for i in data%}
+
+                {%for i in bank%}
                         <tr>
                             <th scope="row">{{i[0]}}</th>
                              <td>{{i[1]}}</td>
                              <td>{{i[2]}}</td>
                              <td>{{i[3]}}</td>
+                             <td>Bank</td>
 
 
                         </tr>
                 {%endfor%}
-              
+
+                {%for i in direct%}
+                <tr>
+                    <th scope="row">{{i[0]}}</th>
+                     <td>{{i[1]}}</td>
+                     <td>{{i[2]}}</td>
+                     <td>{{i[3]}}</td>
+                     <td>Direct</td>
+        
+        
+                </tr>
+                {%endfor%}
+
+                {%for i in credit%}
+                        <tr>
+                            <th scope="row">{{i[0]}}</th>
+                             <td>{{i[1]}}</td>
+                             <td>{{i[2]}}</td>
+                             <td>{{i[3]}}</td>
+                             <td>Credit</td>
+
+
+                        </tr>
+                {%endfor%}
+
+                {%for i in debit%}
+                <tr>
+                    <th scope="row">{{i[0]}}</th>
+                     <td>{{i[1]}}</td>
+                     <td>{{i[2]}}</td>
+                     <td>{{i[3]}}</td>
+                     <td>Debit</td>
+
+
+                </tr>
+               {%endfor%}
+        
+
+        {%for i in upi%}
+        <tr>
+            <th scope="row">{{i[0]}}</th>
+             <td>{{i[1]}}</td>
+             <td>{{i[2]}}</td>
+             <td>{{i[3]}}</td>
+             <td>UPI</td>
+
+
+        </tr>
+        {%endfor%}
               
             </tbody>
           </table>

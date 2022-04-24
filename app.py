@@ -51,7 +51,7 @@ def Customer():
         mycursor.execute(q)
         customerDetails = mycursor.fetchall()
 
-        
+
 
         return render_template("Customer.html",data=customerDetails)
 
@@ -62,11 +62,9 @@ def Customer():
 def CustomerAccount():
     #will come here with a help of cid now ti show list of accounts in dropdown
     if 'usr' in session:
-        q=f"SELECT * FROM customer WHERE first_name= '{session['usr']['username']}';"
-        mycursor.execute(q)
-        customerDetails = mycursor.fetchall()
+       
 
-        customer_id = customerDetails[0][0]
+        customer_id = session['usr']['username']
 
         print("customer id is ")
         print(customer_id)
@@ -89,22 +87,53 @@ def CustomerAccount():
 
 
 @app.route("/Customer/Transactions")
-def BankTransactions():
+def Transactions():
     if 'usr' in session:
-        q=f"SELECT * FROM customer WHERE first_name= '{session['usr']['username']}';"
-        mycursor.execute(q)
-        customerDetails = mycursor.fetchall()
+       
 
-        customer_id = customerDetails[0][0]
+        customer_id = session['usr']['username']
         
-        
-
+        #1.Bank
         q=f"select * from bank_transactions where sender = '{customer_id }' or receiver = '{customer_id }' ; "
         mycursor.execute(q)
-        Transactionsdetails = mycursor.fetchall()
-        print(Transactionsdetails)
+        BankTransactionsdetails = mycursor.fetchall()
 
-        return render_template("Transactions.html",data=Transactionsdetails,len = len(Transactionsdetails))
+        #2.Credit
+        q=f"select * from cc_transactions where sender = '{customer_id }' or receiver = '{customer_id }' ; "
+        mycursor.execute(q)
+        CreditTransactionsdetails = mycursor.fetchall()
+
+        #3.Debit
+        q=f"select * from dc_transactions where sender = '{customer_id }' or receiver = '{customer_id }' ; "
+        mycursor.execute(q)
+        DebitTransactionsdetails = mycursor.fetchall()
+
+        #4.UPI
+        q=f"select * from upi_transactions where sender = '{customer_id }' or receiver = '{customer_id }' ; "
+        mycursor.execute(q)
+        UpiTransactionsdetails = mycursor.fetchall()
+
+        #5.Direct transactions
+        q=f"select * from direct_transactions where sender = '{customer_id }' or receiver = '{customer_id }' ; "
+        mycursor.execute(q)
+        DirectTransactionsdetails = mycursor.fetchall()
+        
+        return render_template("Transactions.html",bank=BankTransactionsdetails,credit=CreditTransactionsdetails,debit=DebitTransactionsdetails,upi=UpiTransactionsdetails,direct=DirectTransactionsdetails)
+
+
+
+@app.route("/Customer/Editdetails", methods= ["POST", "GET"])
+def  CustomerEditdetails():
+    if 'usr' in session:
+        if request.method == 'POST':
+            session['Cdetails'] = request.form
+            print("session is of form ")
+            print(session['Cdetails'])
+
+            # Alter data here
+            return render_template("CustomerEditdetails.html")
+        else:
+            return render_template("CustomerEditdetails.html")
 
 
 
