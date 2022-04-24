@@ -11,10 +11,115 @@
     <title>Employee details</title>
   </head>
   <body>
-    <h1>Details about Customer Account</h1>
-    <h1>Account Number : {{ data[0][0] }}</h1>
-    <h1>Balance ID(RS) : {{ data[0][1] }}</h1>
-    <h1>Opening date ID(RS) : {{ data[0][2] }}</h1>
+   
+  </p>
+      <h1> Accounts </h1>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Account Number</th>
+          <th scope="col">Balance      </th>
+          <th scope="col">Opening date </th>
+          <th scope="col">Closing date </th>
+        </tr>
+      </thead>
+      <tbody>
+          {%for i in data%}
+                  <tr>
+                      <th scope="row">{{i[0]}}</th>
+                       <td>{{i[1]}}</td>
+                       <td>{{i[2]}}</td>
+                       <td>{{i[3]}}</td>
+                       <td>{{i[4]}}</td>
+
+
+                  </tr>
+          {%endfor%}
+        
+        
+      </tbody>
+    </table>
+
+
+
+
+  <p> 
+
+    <h1> Debit Card Details </h1>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Debit card Number</th>
+          <th scope="col">Linked Account   </th>
+          <th scope="col">Issue Date</th>
+          <th scope="col">Expiry date </th>
+          <th scope="col">CVV</th>
+          <th scope="col">Blocked</th>
+
+        </tr>
+      </thead>
+      <tbody>
+          {%for i in dc%}
+                  <tr>
+                      <th scope="row">{{i[0]}}</th>
+                    
+                       <td>{{i[2]}}</td>
+                       <td>{{i[3]}}</td>
+                       <td>{{i[4]}}</td>
+                       <td>{{i[5]}}</td>
+                       <td>{{i[6]}}</td>
+
+
+                  </tr>
+          {%endfor%}
+        
+        
+      </tbody>
+    </table>
+
+  </p>
+    
+  <p>
+    
+    <h1> Credit Card Details </h1>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Credit card Number</th>
+          <th scope="col">Type ID</th>
+          <th scope="col">Issue Date</th>
+          <th scope="col">Expiry date </th>
+          <th scope="col">CVV</th>
+          <th scope="col">Spent</th>
+          <th scope="col">Last_Paid</th>
+          <th scope="col">Blocked</th>
+
+        </tr>
+      </thead>
+      <tbody>
+          {%for i in cc%}
+                  <tr>
+                      <th scope="row">{{i[0]}}</th>
+                      <td>{{i[1]}}</td>
+                      <td>{{i[2]}}</td>
+                      <td>{{i[4]}}</td>
+                      <td>{{i[5]}}</td>
+                      <td>{{i[6]}}</td>
+                      <td>{{i[7]}}</td>
+                      <td>{{i[8]}}</td>
+
+
+                  </tr>
+          {%endfor%}
+        
+        
+      </tbody>
+    </table>
+
+  </p>
+
+  </p>
+    
 
     <!-- Optional JavaScript; choose one of the two! -->
 

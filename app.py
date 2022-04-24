@@ -51,18 +51,6 @@ def Customer():
         mycursor.execute(q)
         customerDetails = mycursor.fetchall()
 
-        customer_id = customerDetails[0][0]
-        print("customer id is ")
-        print(customer_id)
-        
-
-        q=f"select * from accounts where account_no = (select account_no from customer_account where c_id= '{customer_id }');;"
-        mycursor.execute(q)
-        myresult = mycursor.fetchall()
-
-
-        print("myresult is of form ")
-        print(myresult)
         return render_template("Customer.html",data=customerDetails)
 
 
@@ -70,21 +58,32 @@ def Customer():
 
 @app.route("/Customer/Account")
 def CustomerAccount():
+    #will come here with a help of cid now ti show list of accounts in dropdown
     if 'usr' in session:
         q=f"SELECT * FROM customer WHERE first_name= '{session['usr']['username']}';"
         mycursor.execute(q)
         customerDetails = mycursor.fetchall()
 
         customer_id = customerDetails[0][0]
+
         print("customer id is ")
         print(customer_id)
         
-
-        q=f"select * from accounts where account_no = (select account_no from customer_account where c_id= '{customer_id }');;"
+        #can have multiple accounts -- show balance of each(need to be shown in a loop)
+        q=f"select * from accounts where account_no in (select account_no from customer_account where c_id= '{customer_id }');"
         mycursor.execute(q)
         accountdetails = mycursor.fetchall()
 
-        return render_template("CustomerAccount.html",data=accountdetails)
+        # multiple credit cards ( can add pay for credit - cards )
+        q=f"select * from debit_card where c_id = '{customer_id}' ;"
+        mycursor.execute(q)
+        debitcardDetails = mycursor.fetchall()
+
+        q=f"select * from has_cc where c_id = '{customer_id}' ;"
+        mycursor.execute(q)
+        creditcardDetails = mycursor.fetchall()
+
+        return render_template("CustomerAccount.html",data=accountdetails,dc = debitcardDetails,cc = creditcardDetails)
 
 
 @app.route("/Customer/BankTransactions")
