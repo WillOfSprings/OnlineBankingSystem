@@ -47,22 +47,12 @@ def Customer():
     if 'usr' in session:
         print("not there yet.............")
 
-        q=f"SELECT * FROM customer WHERE first_name= '{session['usr']['username']}';"
+        q=f"SELECT * FROM customer WHERE c_id= '{session['usr']['username']}';"
         mycursor.execute(q)
         customerDetails = mycursor.fetchall()
 
-        customer_id = customerDetails[0][0]
-        print("customer id is ")
-        print(customer_id)
-        
-
-        q=f"select * from accounts where account_no = (select account_no from customer_account where c_id= '{customer_id }');;"
-        mycursor.execute(q)
-        myresult = mycursor.fetchall()
 
 
-        print("myresult is of form ")
-        print(myresult)
         return render_template("Customer.html",data=customerDetails)
 
 
@@ -70,44 +60,95 @@ def Customer():
 
 @app.route("/Customer/Account")
 def CustomerAccount():
+    #will come here with a help of cid now ti show list of accounts in dropdown
     if 'usr' in session:
-        q=f"SELECT * FROM customer WHERE first_name= '{session['usr']['username']}';"
-        mycursor.execute(q)
-        customerDetails = mycursor.fetchall()
+       
 
-        customer_id = customerDetails[0][0]
+        customer_id = session['usr']['username']
+
         print("customer id is ")
         print(customer_id)
         
-
-        q=f"select * from accounts where account_no = (select account_no from customer_account where c_id= '{customer_id }');;"
+        #can have multiple accounts -- show balance of each(need to be shown in a loop)
+        q=f"select * from accounts where account_no in (select account_no from customer_account where c_id= '{customer_id }');"
         mycursor.execute(q)
         accountdetails = mycursor.fetchall()
 
-        return render_template("CustomerAccount.html",data=accountdetails)
-
-
-@app.route("/Customer/BankTransactions")
-def BankTransactions():
-    if 'usr' in session:
-        q=f"SELECT * FROM customer WHERE first_name= '{session['usr']['username']}';"
+        # multiple credit cards ( can add pay for credit - cards )
+        q=f"select * from debit_card where c_id = '{customer_id}' ;"
         mycursor.execute(q)
-        customerDetails = mycursor.fetchall()
+        debitcardDetails = mycursor.fetchall()
 
-        customer_id = customerDetails[0][0]
-        
-        
+        q=f"select * from has_cc where c_id = '{customer_id}' ;"
+        mycursor.execute(q)
+        creditcardDetails = mycursor.fetchall()
 
+        return render_template("CustomerAccount.html",data=accountdetails,dc = debitcardDetails,cc = creditcardDetails)
+
+
+@app.route("/Customer/Transactions")
+def Transactions():
+    if 'usr' in session:
+       
+
+        customer_id = session['usr']['username']
+        
+        #1.Bank
         q=f"select * from bank_transactions where sender = '{customer_id }' or receiver = '{customer_id }' ; "
         mycursor.execute(q)
         BankTransactionsdetails = mycursor.fetchall()
-        print(BankTransactionsdetails)
 
-        return render_template("BankTransactions.html",data=BankTransactionsdetails,len = len(BankTransactionsdetails))
+        #2.Credit
+        q=f"select * from cc_transactions where sender = '{customer_id }' or receiver = '{customer_id }' ; "
+        mycursor.execute(q)
+        CreditTransactionsdetails = mycursor.fetchall()
+
+        #3.Debit
+        q=f"select * from dc_transactions where sender = '{customer_id }' or receiver = '{customer_id }' ; "
+        mycursor.execute(q)
+        DebitTransactionsdetails = mycursor.fetchall()
+
+        #4.UPI
+        q=f"select * from upi_transactions where sender = '{customer_id }' or receiver = '{customer_id }' ; "
+        mycursor.execute(q)
+        UpiTransactionsdetails = mycursor.fetchall()
+
+        #5.Direct transactions
+        q=f"select * from direct_transactions where sender = '{customer_id }' or receiver = '{customer_id }' ; "
+        mycursor.execute(q)
+        DirectTransactionsdetails = mycursor.fetchall()
+        
+        return render_template("Transactions.html",bank=BankTransactionsdetails,credit=CreditTransactionsdetails,debit=DebitTransactionsdetails,upi=UpiTransactionsdetails,direct=DirectTransactionsdetails)
+
+
+
+@app.route("/Customer/Editdetails", methods= ["POST", "GET"])
+def  CustomerEditdetails():
+    if 'usr' in session:
+        if request.method == 'POST':
+            session['Cdetails'] = request.form
+            print("session is of form ")
+            print(session['Cdetails'])
+
+            customer_id = session['usr']['username']
+            fname = session['Cdetails']['first name']
+            lname = session['Cdetails']['last name']
+            dob = session['Cdetails']['DOB']
+            sex = session['Cdetails']['Sex']
+
+            q = f"UPDATE customer SET first_name = '{fname}', last_name = '{lname}',dob = '{dob}',sex = '{sex}' WHERE c_id = '{customer_id}' ; "
+            mycursor.execute(q)
+            mydb.commit()
+            # Alter data here
+            return redirect(url_for("Customer"))
+            
+        else:
+            return render_template("CustomerEditdetails.html")
 
 
 
 
 if __name__ == "main":
     app.run(debug=True)
+
 
