@@ -130,8 +130,18 @@ def  CustomerEditdetails():
             print("session is of form ")
             print(session['Cdetails'])
 
+            customer_id = session['usr']['username']
+            fname = session['Cdetails']['first name']
+            lname = session['Cdetails']['last name']
+            dob = session['Cdetails']['DOB']
+            sex = session['Cdetails']['Sex']
+
+            q = f"UPDATE customer SET first_name = '{fname}', last_name = '{lname}',dob = '{dob}',sex = '{sex}' WHERE c_id = '{customer_id}' ; "
+            mycursor.execute(q)
+            mydb.commit()
             # Alter data here
-            return render_template("CustomerEditdetails.html")
+            return redirect(url_for("Customer"))
+            
         else:
             return render_template("CustomerEditdetails.html")
 
