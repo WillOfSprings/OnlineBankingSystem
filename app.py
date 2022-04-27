@@ -133,7 +133,7 @@ def account():
 		c_id = session['usr']
 
 		# can have multiple accounts -- show balance of each(need to be shown in a loop)
-		#q = f"select * from accounts where account_no in (select account_no from customer_account where c_id= '{customer_id}');"
+		# q = f"select * from accounts where account_no in (select account_no from customer_account where c_id= '{customer_id}');"
 
 		q = f"select ca.c_id, a.account_no, a.balance, a.opening_date, " \
 			f"a.closing_date,a.branch_id, ca.phone, ca.email, ca.is_primary " \
@@ -187,15 +187,15 @@ def account():
 		return redirect(url_for('home'))
 
 
-# Account List
+# Loan List
 class LoanDetailsForm(FlaskForm):
 	ln = SelectField(u'Choose loan', coerce=int)
 	submit = SubmitField("Update")
 
+
 # Loans Page
 @app.route("/loans", methods=["GET", "POST"])
 def loans():
-
 	if 'logged_in' in session:
 		c_id = session['usr']
 		q = f"select b.loan_no, b.c_id, b.loan_id, l.loan_type, l.amount, l.duration, " \
@@ -237,6 +237,115 @@ def loans():
 							   loanpayments=loanpayments)
 	else:
 		return redirect(url_for('home'))
+
+
+# Deposit List
+class DepDetailsForm(FlaskForm):
+	dp = SelectField(u'Choose recurring deposit', coerce=int)
+	submit = SubmitField("Update")
+
+
+# Loans Page
+@app.route("/deposits", methods=["GET", "POST"])
+def deposits():
+	if 'logged_in' in session:
+		c_id = session['usr']
+		q = f"select * from fix_deposit where c_id = {c_id};"
+		mycursor.execute(q)
+		fixdetails = mycursor.fetchall()
+
+		q = f"select * from rec_deposit where c_id = {c_id};"
+		mycursor.execute(q)
+		recdetails = mycursor.fetchall()
+
+		rid = 0
+		curr_rec = recdetails[rid]
+
+		q = f"select * from deposit_record where rec_no = {curr_rec[0]};"
+		mycursor.execute(q)
+		recpayments = mycursor.fetchall()
+
+		form = DepDetailsForm()
+		form.dp.choices = []
+
+		for i in range(len(recdetails)):
+			form.dp.choices.append((i, recdetails[i][0]))
+
+		if form.validate_on_submit():
+			rid = form.dp.data
+			curr_rec = recdetails[rid]
+
+			q = f"select * from deposit_record where rec_no = {curr_rec[0]};"
+			mycursor.execute(q)
+			recpayments = mycursor.fetchall()
+
+			return render_template("mydeps.html",
+								   form=form,
+								   fixdetails=fixdetails,
+								   recdetails=curr_rec,
+								   recpayments=recpayments)
+
+		return render_template("mydeps.html",
+							   form=form,
+							   fixdetails=fixdetails,
+							   recdetails=curr_rec,
+							   recpayments=recpayments)
+	else:
+		return redirect(url_for('home'))
+
+
+
+
+# Card List
+class CardDetailsForm(FlaskForm):
+	cc = SelectField(u'Choose card', coerce=int)
+	submit = SubmitField("Update")
+
+
+# Loans Page
+@app.route("/cards", methods=["GET", "POST"])
+def cards():
+	if 'logged_in' in session:
+		c_id = session['usr']
+		q = f"select hc.cc_no, hc.type_id, cc.card_name, cc.monthly_fee, cc.cc_limit," \
+			f" hc.issue_date, hc.expiry, hc.cvv, hc.spent, hc.last_paid, hc.is_blocked " \
+			f"from credit_card cc inner join has_cc hc on cc.type_id = hc.type_id where hc.c_id = {c_id};"
+		mycursor.execute(q)
+		carddetails = mycursor.fetchall()
+
+		ccid = 0
+		curr_cc = carddetails[ccid]
+
+		q = f"select p_id, amount, cc_date, fined from cc_payment where cc_no = {curr_cc[0]};"
+		mycursor.execute(q)
+		ccpayment = mycursor.fetchall()
+
+		form = CardDetailsForm()
+		form.cc.choices = []
+
+		for i in range(len(carddetails)):
+			form.cc.choices.append((i, carddetails[i][0]))
+
+		if form.validate_on_submit():
+			ccid = form.cc.data
+			curr_cc = carddetails[ccid]
+
+			q = f"select p_id, amount, cc_date, fined from cc_payment where cc_no = {curr_cc[0]};"
+			mycursor.execute(q)
+			ccpayment = mycursor.fetchall()
+
+			return render_template("mycc.html",
+								   form=form,
+								   carddetails=curr_cc,
+								   ccpayment=ccpayment)
+
+		return render_template("mycc.html",
+							   form=form,
+							   carddetails=curr_cc,
+							   ccpayment=ccpayment)
+	else:
+		return redirect(url_for('home'))
+
 
 #
 # @app.route("/Customer/Transactions")
