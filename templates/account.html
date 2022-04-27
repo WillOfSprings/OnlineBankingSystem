@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block head %} <Title> Accounts </Title> {% endblock %}
+
+{% block body %}
+
+    <div class="container-md border">
+        <form method="post">
+
+            {{ form.hidden_tag() }}
+
+            <div class="col-md-6">
+            {{ form.acc.label(class="form-label") }}<br/>
+            {{ form.acc(class="form-select") }}
+            </div>
+            <br/>
+            {{ form.submit(class="btn btn-primary") }}
+            <br/><br/>
+        </form>
+    </div>
+    <br/><br/><br/>
+
+    <div class="container-md border">
+    <h3> Account Details </h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Account Number</th>
+          <th scope="col">Balance</th>
+          <th scope="col">Opening date</th>
+          <th scope="col">Closing date</th>
+            <th scope="col">Branch ID</th>
+            <th scope="col">Phone</th>
+            <th scope="col">Email</th>
+            <th scope="col">Primary Holder</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr>
+              <th scope="row">{{accountdetails[1]}}</th>
+               <td>{{accountdetails[1]}}</td>
+               <td>{{accountdetails[2]}}</td>
+               <td>{{accountdetails[3]}}</td>
+               <td>{{accountdetails[4]}}</td>
+              <td>{{accountdetails[5]}}</td>
+              <td>{{accountdetails[6]}}</td>
+              <td>{{accountdetails[7]}}</td>
+
+              {% if accountdetails[8] == 1 %}
+              <td>Yes</td>
+              {% else %}
+              <td>No</td>
+              {% endif %}
+
+          </tr>
+
+
+      </tbody>
+    </table>
+    </div>
+
+    <br/><br/><br/>
+
+    <div class="container-md border">
+    <h3> Debit Card </h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Card Number</th>
+          <th scope="col">Issue Date</th>
+          <th scope="col">Expiry</th>
+          <th scope="col">CVV</th>
+            <th scope="col">Blocked</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr>
+              <th scope="row">{{card[0]}}</th>
+               <td>{{card[3]}}</td>
+               <td>{{card[4]}}</td>
+               <td>{{card[5]}}</td>
+              {% if card[6] == 1 %}
+              <td>Yes</td>
+              {% else %}
+              <td>No</td>
+              {% endif %}
+
+          </tr>
+
+
+      </tbody>
+    </table>
+    </div>
+
+    <br/><br/><br/>
+
+    <div class="container-md border">
+    <h3> UPI IDs </h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">UPI ID</th>
+        </tr>
+      </thead>
+      <tbody>
+
+      {%  for i in upi %}
+          <tr>
+              <th scope="row">{{i[0]}}</th>
+
+          </tr>
+
+      {% endfor %}
+
+
+      </tbody>
+    </table>
+    </div>
+
+
+
+
+
+{% endblock %}

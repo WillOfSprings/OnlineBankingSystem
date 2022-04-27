@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block head %} <Title> Login </Title> {% endblock %}
+
+{% block body %}
+
+    <div class="container-md border">
+        <form method="post">
+
+            {{ form.hidden_tag() }}
+
+            <div class="col-md-6">
+            {{ form.type.label(class="form-label") }}<br/>
+            {{ form.type(class="form-select") }}
+            </div>
+
+            <div class="col-md-6">
+            {{ form.user.label(class="form-label") }}
+            {{ form.user(class="form-control") }}
+            </div><br/>
+            {{ form.submit(class="btn btn-primary") }}
+        </form>
+    </div>
+
+{% endblock %}
