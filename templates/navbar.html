@@ -9,15 +9,12 @@
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="{{ url_for('home') }}">Home</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('login') }}">Login</a>
-        </li>
-          <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-        </li>
-          </li>
+
           <li class="nav-item">
           <a class="nav-link" href="{{ url_for('account') }}">Accounts</a>
+        </li>
+          <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('loans') }}">Loans</a>
         </li>
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -30,6 +27,14 @@
             <li><a class="dropdown-item" href="#">Something else here</a></li>
           </ul>
         </li>
+
+          <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+        </li>
+          <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+        </li>
+
       </ul>
     </div>
   </div>

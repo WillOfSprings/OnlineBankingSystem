@@ -120,7 +120,6 @@ def logout():
 #
 
 # Account List
-# Login form
 class AccountDetailsForm(FlaskForm):
 	acc = SelectField(u'Choose account', coerce=int)
 	submit = SubmitField("Update")
@@ -139,14 +138,14 @@ def account():
 		q = f"select ca.c_id, a.account_no, a.balance, a.opening_date, " \
 			f"a.closing_date,a.branch_id, ca.phone, ca.email, ca.is_primary " \
 			f"from accounts a inner join customer_account ca on " \
-			f"a.account_no = ca.account_no where ca.c_id = {session['usr']};"
+			f"a.account_no = ca.account_no where ca.c_id = {c_id};"
 
 		mycursor.execute(q)
 		accountdetails = mycursor.fetchall()
 
 		aid = 0
 		curr_acc = accountdetails[aid]
-		q = f"select * from debit_card where account_no={curr_acc[1]} and c_id ={session['usr']};"
+		q = f"select * from debit_card where account_no={curr_acc[1]} and c_id ={c_id};"
 		mycursor.execute(q)
 		card = mycursor.fetchone()
 
@@ -188,20 +187,56 @@ def account():
 		return redirect(url_for('home'))
 
 
+# Account List
+class LoanDetailsForm(FlaskForm):
+	ln = SelectField(u'Choose loan', coerce=int)
+	submit = SubmitField("Update")
 
+# Loans Page
+@app.route("/loans", methods=["GET", "POST"])
+def loans():
 
+	if 'logged_in' in session:
+		c_id = session['usr']
+		q = f"select b.loan_no, b.c_id, b.loan_id, l.loan_type, l.amount, l.duration, " \
+			f"l.interest, l.emi, b.start_date, b.payments_remain, b.last_paid " \
+			f"from borrow_loan b, loan l where b.loan_id = l.loan_id and b.c_id = {c_id};"
+		mycursor.execute(q)
+		loandetails = mycursor.fetchall()
 
+		lid = 0
+		curr_loan = loandetails[lid]
 
-		# # multiple credit cards ( can add pay for credit - cards )
-		# q = f"select * from debit_card where c_id = '{customer_id}' ;"
-		# mycursor.execute(q)
-		# debitcardDetails = mycursor.fetchall()
-		#
-		# q = f"select * from has_cc where c_id = '{customer_id}' ;"
-		# mycursor.execute(q)
-		# creditcardDetails = mycursor.fetchall()
-		#
-		# return render_template("CustomerAccount.html", data=accountdetails, dc=debitcardDetails, cc=creditcardDetails)
+		q = f"select * from loan_payment where loan_no = {curr_loan[0]};"
+		mycursor.execute(q)
+		loanpayments = mycursor.fetchall()
+
+		form = LoanDetailsForm()
+		form.ln.choices = []
+
+		for i in range(len(loandetails)):
+			form.ln.choices.append((i, loandetails[i][0]))
+
+		if form.validate_on_submit():
+			lid = form.ln.data
+			curr_loan = loandetails[lid]
+
+			q = f"select * from loan_payment where loan_no = {curr_loan[0]};"
+			mycursor.execute(q)
+			loanpayments = mycursor.fetchall()
+			print(loanpayments)
+
+			return render_template("myloans.html",
+								   form=form,
+								   loandetails=curr_loan,
+								   loanpayments=loanpayments)
+
+		return render_template("myloans.html",
+							   form=form,
+							   loandetails=curr_loan,
+							   loanpayments=loanpayments)
+	else:
+		return redirect(url_for('home'))
 
 #
 # @app.route("/Customer/Transactions")
