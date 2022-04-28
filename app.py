@@ -10,6 +10,8 @@ mydb = mysql.connector.connect(host="projectdb.coe4avf23rbf.ap-south-1.rds.amazo
 							   user="bankdbgroup",
 							   passwd="bdbcse202",
 							   database="test1")
+
+
 mycursor = mydb.cursor()
 
 app = Flask(__name__)
@@ -239,6 +241,31 @@ def loans():
 		return redirect(url_for('home'))
 
 
+
+@app.route("/applyloans", methods=["GET", "POST"])
+def applyloans():
+	if 'logged_in' in session:
+		c_id = session['usr']
+		q = f"select * from loan;"
+		mycursor.execute(q)
+		availableloans = mycursor.fetchall()
+
+		alid = None
+		form = LoanDetailsForm()
+		form.ln.choices = []
+
+		for i in range(len(availableloans)):
+			form.ln.choices.append((i, availableloans[i][0]))
+
+		if form.validate_on_submit():
+			alid = form.ln.data
+
+		return render_template("applyloans.html", form=form, availableloans=availableloans)
+
+	else:
+		return redirect(url_for('home'))
+
+
 # Deposit List
 class DepDetailsForm(FlaskForm):
 	dp = SelectField(u'Choose recurring deposit', coerce=int)
@@ -294,6 +321,31 @@ def deposits():
 		return redirect(url_for('home'))
 
 
+# Fix Deposit Form
+class FixDepForm(FlaskForm):
+	amount = IntegerField("Amount", validators=[DataRequired()])
+	submit = SubmitField("Deposit")
+
+# Fix deposit application page
+@app.route("/fixdeposit", methods=["GET", "POST"])
+def fixdeposit():
+	if 'logged_in' in session:
+		c_id = session['usr']
+		form = FixDepForm()
+		if form.validate_on_submit():
+			amount = form.amount.data
+			q = f"insert into fix_deposit values ({c_id}, {amount}, 0);"
+			mycursor.execute(q)
+			mydb.commit()
+			return redirect(url_for('deposits'))
+		return render_template("fixdeposit.html", form=form)
+
+	else:
+		return redirect(url_for('home'))
+
+# Recurrence deposit has a change i am thinking
+
+
 
 
 # Card List
@@ -302,7 +354,7 @@ class CardDetailsForm(FlaskForm):
 	submit = SubmitField("Update")
 
 
-# Loans Page
+# Cards Page
 @app.route("/cards", methods=["GET", "POST"])
 def cards():
 	if 'logged_in' in session:
@@ -343,6 +395,39 @@ def cards():
 							   form=form,
 							   carddetails=curr_cc,
 							   ccpayment=ccpayment)
+	else:
+		return redirect(url_for('home'))
+
+
+# Card application page
+@app.route("/cardapply", methods=["GET", "POST"])
+def cardapply():
+	if 'logged_in' in session:
+		c_id = session['usr']
+		q = f"select * from credit_card;"
+		mycursor.execute(q)
+		cardtypes = mycursor.fetchall()
+
+		cardid = None
+		form = CardDetailsForm()
+		form.cc.choices = []
+
+		for i in range(len(cardtypes)):
+			form.cc.choices.append((i, cardtypes[i][0]))
+
+		if form.validate_on_submit():
+			cardid = form.cc.data
+
+			# return render_template("mycc.html",
+			# 					   form=form,
+			# 					   carddetails=curr_cc,
+			# 					   ccpayment=ccpayment)
+
+		return render_template("mycc.html",
+							   form=form,
+							   carddetails=curr_cc,
+							   ccpayment=ccpayment)
+
 	else:
 		return redirect(url_for('home'))
 
