@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block head %} <Title> Customer Support </Title> {% endblock %}
+
+{% block body %}
+
+{#    <br/><br/>#}
+{#    <div class="container-md border">#}
+{#        <form method="post">#}
+{##}
+{#            {{ form.hidden_tag() }}#}
+{##}
+{#            <div class="col-md-6">#}
+{#            {{ form.ln.label(class="form-label") }}<br/>#}
+{#            {{ form.ln(class="form-select") }}#}
+{#            </div>#}
+{#            <br/>#}
+{#            {{ form.submit(class="btn btn-primary") }}#}
+{#            <br/><br/>#}
+{#        </form>#}
+    <h3><center>Customer Support</center></h3>
+    <br/>
+    <center>
+        <h6>Bank Customer Care Number </h6>
+        <h6>1800 202 6161 / 1860 267 6161 </h6>
+        <h6>(Accessible across India) </h6>
+    </center>
+
+    <br/>
+
+    <p></p>
+    <p><center>Get in touch with us for your Banking needs on our helpline number. Now you can get access to your Bank Accounts, Credit Cards, Loans, Demat Account services over the call.
+    Phone numbers and email addresses mentioned here are the only Customer Care numbers of Bank, which you should use. Please do not use any other since these may put you at risk of fraud.</center></p>
+
+    </div>
+{#    <form action="/issue.html" method="POST">#}
+{#        <select class="form-select" aria-label="Default select example">#}
+{#        <option selected>----Complaint related to issues----</option>#}
+{#        <option value="1">Loans</option>#}
+{#        <option value="2">Debit Cards</option>#}
+{#        <option value="3">Credit Cards</option>#}
+{#        <option value="4">Fixed Deposits</option>#}
+{#        <option value="5">Recurring Deposits</option>#}
+{#        <option value="6">Payment issues</option>#}
+{#        <option value="7">Account issues</option>#}
+{#        <option value="8">Other</option>#}
+{#    </select>#}
+{#    <br/>#}
+{#        {{ form.submit(class="btn btn-primary") }}#}
+{#  <button type="submit" class="btn btn-success btn-lg rounded-pill">Continue</button>#}
+{#    </form>#}
+    <br/>
+
+    <p>List: -</p>
+    <p>1. Loans</p>
+    <p>2. Debit Cards</p>
+    <p>3. Credit Cards</p>
+    <p>4. Fixed Deposits</p>
+    <p>5. Recurring Deposits</p>
+    <p>6. Payment issues</p>
+    <p>7. Account issues</p>
+    <p>8. Other</p>
+
+    <br/>
+    <div class="container-md border">
+        <form action="/issue", method="POST">
+
+            {{ form.hidden_tag() }}
+
+            <div class="col-md-6">
+            {{ form.query.label(class="form-label") }}<br/>
+            {{ form.query(class="form-select") }}
+            </div>
+            <div class="form-group">
+                <label for="exampleFormControlTextarea1">Issue description</label>
+                <textarea name="content" placeholder=description" class="form-control" id="exampleFormControlTextarea1" rows="3">{{ request.form['content'] }}</textarea>
+            </div>
+            <br/>
+            {{ form.submit(class="btn btn-primary") }}
+            <br/><br/>
+        </form>
+    </div>
+    <br/>
+
+
+
+{%  endblock %}

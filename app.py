@@ -6,10 +6,7 @@ from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationE
 from random import randint
 import mysql.connector
 
-mydb = mysql.connector.connect(host="projectdb.coe4avf23rbf.ap-south-1.rds.amazonaws.com",
-							   user="bankdbgroup",
-							   passwd="bdbcse202",
-							   database="test1")
+mydb=mysql.connector.connect(host="projectdb.coe4avf23rbf.ap-south-1.rds.amazonaws.com", user="bankdbgroup", passwd="bdbcse202", database="test1" )
 mycursor = mydb.cursor()
 
 app = Flask(__name__)
@@ -26,9 +23,9 @@ app.secret_key = "bankDB"
 
 # Login form
 class LoginForm(FlaskForm):
-	type = SelectField(u'Type', choices=[('c', 'Customer'), ('e', 'Employee'), ('a', 'Admin')])
-	user = IntegerField("ID", validators=[DataRequired()])
-	submit = SubmitField("Login")
+    type = SelectField(u'Type', choices=[('c', 'Customer'), ('e', 'Employee'), ('a', 'Admin')])
+    user = IntegerField("ID", validators=[DataRequired()])
+    submit = SubmitField("Login")
 
 
 # Home Page
@@ -36,16 +33,13 @@ class LoginForm(FlaskForm):
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-	if 'logged_in' in session:
-		q = f"SELECT * FROM customer WHERE c_id = {session['usr']};"
-		mycursor.execute(q)
-		customerDetails = mycursor.fetchone()
-		return render_template("home.html",
-							   usr=session['usr'],
-							   type=session['type'],
-							   data=customerDetails)
-	else:
-		return render_template("home.html")
+    if 'logged_in' in session:
+        q = f"SELECT * FROM customer WHERE c_id = {session['usr']};"
+        mycursor.execute(q)
+        customerDetails = mycursor.fetchone()
+        return render_template("home.html", usr=session['usr'], type=session['type'], data=customerDetails)
+    else:
+        return render_template("home.html")
 
 
 # Login page
@@ -53,73 +47,73 @@ def home():
 
 @app.route("/login", methods=["POST", "GET"])
 def login():
-	if 'logged_in' in session:
-		return redirect(url_for('home'))
+    if 'logged_in' in session:
+        return redirect(url_for('home'))
 
-	cid = None
-	form = LoginForm()
+    cid = None
+    form = LoginForm()
 
-	if form.validate_on_submit():
-		if form.type.data == "c":
-			q = f"select c_id from customer where c_id = {form.user.data};"
-			mycursor.execute(q)
-			cid = mycursor.fetchone()
-			if cid is None:
-				return render_template("login.html", form=form, error="Invalid ID")
-			else:
-				session['usr'] = form.user.data
-				session['type'] = "c"
-				session['logged_in'] = True
-				return redirect(url_for('home'))
+    if form.validate_on_submit():
+        if form.type.data == "c":
+            q = f"select c_id from customer where c_id = {form.user.data};"
+            mycursor.execute(q)
+            cid = mycursor.fetchone()
+            if cid is None:
+                return render_template("login.html", form=form, error="Invalid ID")
+            else:
+                session['usr'] = form.user.data
+                session['type'] = "c"
+                session['logged_in'] = True
+                return redirect(url_for('home'))
 
-		elif form.type.data == "e":
-			# q = f"select e_id from employee where e_id = {form.user.data};"
-			# mycursor.execute(q)
-			# cid = mycursor.fetchone()
-			# if cid is None:
-			# 	return render_template("login.html", form=form)
-			# else:
-			session['usr'] = form.user.data
-			session['type'] = "e"
-			session['logged_in'] = True
-			return redirect(url_for('home'))
+        elif form.type.data == "e":
+            # q = f"select e_id from employee where e_id = {form.user.data};"
+            # mycursor.execute(q)
+            # cid = mycursor.fetchone()
+            # if cid is None:
+            # 	return render_template("login.html", form=form)
+            # else:
+            session['usr'] = form.user.data
+            session['type'] = "e"
+            session['logged_in'] = True
+            return redirect(url_for('home'))
 
-		elif form.type.data == "a":
-			# q = f"select a_id from admin where a_id = {form.user.data};"
-			# mycursor.execute(q)
-			# cid = mycursor.fetchone()
-			# if cid is None:
-			# 	return render_template("login.html", form=form)
-			# else:
-			session['usr'] = form.user.data
-			session['type'] = "a"
-			session['logged_in'] = True
-			return redirect(url_for('home'))
+        elif form.type.data == "a":
+            # q = f"select a_id from admin where a_id = {form.user.data};"
+            # mycursor.execute(q)
+            # cid = mycursor.fetchone()
+            # if cid is None:
+            # 	return render_template("login.html", form=form)
+            # else:
+            session['usr'] = form.user.data
+            session['type'] = "a"
+            session['logged_in'] = True
+            return redirect(url_for('home'))
 
-	return render_template("login.html", form=form)
+    return render_template("login.html", form=form)
 
 
-# Logout page
+    # Logout page
 
 
 @app.route("/logout", methods=["GET"])
 def logout():
-	if 'logged_in' in session:
-		session.pop('logged_in', None)
-		session.pop('usr', None)
-		session.pop('type', None)
-		return render_template("logout.html", log=1)
-	return render_template("logout.html")
+    if 'logged_in' in session:
+        session.pop('logged_in', None)
+        session.pop('usr', None)
+        session.pop('type', None)
+        return render_template("logout.html", log=1)
+    return render_template("logout.html")
 
 
-# @app.route("/Employee")
-# def Employee():
-# 	if 'usr' in session:
-# 		return render_template("Employee.html", data=session['usr'])
-#
-#
+    # @app.route("/Employee")
+    # def Employee():
+    # 	if 'usr' in session:
+    # 		return render_template("Employee.html", data=session['usr'])
+    #
+    #
 
-# Account List
+    # Account List
 class AccountDetailsForm(FlaskForm):
 	acc = SelectField(u'Choose account', coerce=int)
 	submit = SubmitField("Update")
@@ -171,20 +165,68 @@ def account():
 			mycursor.execute(q)
 			upi = mycursor.fetchall()
 
-			return render_template("account.html",
-								   form=form,
-								   accountdetails=curr_acc,
-								   card=card,
-								   upi=upi)
+			return render_template("account.html", form=form, accountdetails=curr_acc, card=card, upi=upi)
 
-		return render_template("account.html",
-							   form=form,
-							   accountdetails=curr_acc,
-							   card=card,
-							   upi=upi)
+		return render_template("account.html", form=form, accountdetails=curr_acc, card=card, upi=upi)
 
 	else:
 		return redirect(url_for('home'))
+
+
+# class issuedata:
+# 	def __init__(self, issuetype, content):
+# 		self.issuetype=issuetype
+# 		self.content=content
+#
+# 	def getissuetype(self):
+# 		return self.issuetype
+#
+# 	def getcontent(self):
+# 		return self.content
+
+@app.route("/Customer/Support", methods= ["POST", "GET"])
+def support():
+	if 'logged_in' in session:
+		c_id = session['usr']
+		form = SupportQueriesForm()
+		# for i in range(1, 9):
+		# 	form.query.choices.append(i)
+		form.query.choices = [1, 2, 3, 4, 5, 6, 7, 8]
+		issues = {"Loans", "Debit Cards", "Credit Cards", "Fixed Deposits", "Recurring Deposits", "Payment issues", "Account issues", "Other"}
+        if form.validate_on_submit():
+            issue = form.query.data
+            print(str(issue))
+            if request.method == 'POST':
+                content = request.form['content']
+                q = f"select service_id from service"
+                mycursor.execute(q)
+				service_ids = mycursor.fetchall()
+				no_of_ids = len(service_ids)
+				q = f"insert into service(service_id, c_id, issue, s_date, e_id, resolved, issue) values(no_of_ids+1, c_id, issues[issue+1], '28-04-2022', 1, 0, content)"
+				mycursor.execute(q)
+				print(str(content))
+				return redirect(url_for('issue'))
+			return render_template("support.html", form=form)
+		return render_template("support.html", form=form)
+	else:
+		return redirect(url_for('home'))
+
+
+class SupportQueriesForm(FlaskForm):
+	query = SelectField(u'Select the issue regarding your complaint', coerce=int)
+	# desc = request.form.get('form-control')
+	submit = SubmitField("Continue")
+
+
+@app.route("/issue", methods= ["POST"])
+def issue():
+	if 'logged_in' in session:
+		c_id = session['usr']
+		q = f"select * from service where c_id= {c_id};"
+		mycursor.execute(q)
+		issuedetails = mycursor.fetchall()
+		print(issuedetails)
+	return render_template("issue.html")
 
 
 # Account List
@@ -192,10 +234,10 @@ class LoanDetailsForm(FlaskForm):
 	ln = SelectField(u'Choose loan', coerce=int)
 	submit = SubmitField("Update")
 
+
 # Loans Page
 @app.route("/loans", methods=["GET", "POST"])
 def loans():
-
 	if 'logged_in' in session:
 		c_id = session['usr']
 		q = f"select b.loan_no, b.c_id, b.loan_id, l.loan_type, l.amount, l.duration, " \
@@ -226,19 +268,13 @@ def loans():
 			loanpayments = mycursor.fetchall()
 			print(loanpayments)
 
-			return render_template("myloans.html",
-								   form=form,
-								   loandetails=curr_loan,
-								   loanpayments=loanpayments)
+			return render_template("myloans.html", form=form, loandetails=curr_loan, loanpayments=loanpayments)
 
-		return render_template("myloans.html",
-							   form=form,
-							   loandetails=curr_loan,
-							   loanpayments=loanpayments)
+		return render_template("myloans.html", form=form, loandetails=curr_loan, loanpayments=loanpayments)
 	else:
 		return redirect(url_for('home'))
 
-#
+
 # @app.route("/Customer/Transactions")
 # def Transactions():
 # 	if 'usr' in session:
@@ -296,6 +332,7 @@ def loans():
 #
 # 		else:
 # 			return render_template("CustomerEditdetails.html")
+
 
 
 if __name__ == "main":
