@@ -1,0 +1,314 @@
+use bankdb;
+
+drop database bankdb; create database bankdb; use bankdb;
+
+-- Branch ID = B008 etc --
+
+CREATE TABLE branch (
+branch_id char(4) primary key,
+street varchar(50) default null,
+city varchar(50) not null,
+state varchar(50) not null,
+postal_code char(6) not null,
+no_employees smallint unsigned not null default 0,
+check (branch_id Like 'B___')
+);
+
+
+-- C001 --
+
+CREATE TABLE customer (
+c_id char(4) PRIMARY KEY,
+first_name VARCHAR(40) not null,
+last_name VARCHAR(40) not null,
+dob DATE Not null,
+sex ENUM('M', 'F', 'O') not null,
+email varchar(50) not null,
+phone char(10) not null,
+street varchar(50),
+city varchar(50) not null,
+state varchar(50) not null,
+postal_code char(6) not null,
+check (c_id like 'C___')
+);
+
+-- E004 --
+
+CREATE TABLE cust_support (
+e_id char(4) primary key,
+branch_id char(4) not null default 'B001',
+first_name VARCHAR(40) not null,
+last_name VARCHAR(40) not null,
+dob DATE Not null,
+sex ENUM('M', 'F', 'O') not null,
+email varchar(50) not null,
+phone char(10) not null,
+street varchar(50),
+city varchar(50) not null,
+state varchar(50) not null,
+postal_code char(6) not null,
+check (e_id like 'E___'),
+FOREIGN KEY(branch_id)
+REFERENCES branch(branch_id)
+ON DELETE CASCADE
+ON UPDATE CASCADE
+);
+
+-- 5 digit account number --
+
+create Table accounts(
+account_no char(5) primary key,
+balance float not null,
+opening_date Date not null,
+closing_date Date not null default '0000-00-00 00:00:00',
+branch_id char(4) not null ,
+check (account_no like '1____'),
+FOREIGN KEY(branch_id) REFERENCES branch(branch_id)
+ON DELETE RESTRICT
+ON UPDATE CASCADE
+);
+
+create table customer_account(
+c_id char(4),
+account_no char(5),
+linked_phone char(10) not null,
+is_primary boolean default false not null,
+linked_email varchar(40) not null,
+primary key(c_id,account_no),
+foreign key (c_id) references customer(c_id) ON DELETE CASCADE ON UPDATE
+CASCADE,
+foreign key (account_no) references accounts(account_no) ON DELETE CASCADE ON
+UPDATE CASCADE
+);
+
+create table service(
+service_id char(4) primary key,
+c_id char(4) not null,
+issue_with ENUM('Account', 'Loan', 'Debit Card', 'Credit Card', 'Fixed Deposit', 'Recurring Deposit', 'Transaction') not null,
+issue varchar(250) not null,
+s_date date not null,
+e_id_resolved char(4) default null,
+resolved boolean not null default false,
+check (service_id like 'S___'),
+
+foreign key (c_id) references customer(c_id) ON DELETE CASCADE ON UPDATE CASCADE,
+foreign key (e_id_resolved) references cust_support(e_id) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+create table upi(
+upi_id varchar(20) primary key,
+account_no char(5) not null,
+foreign key (account_no) references accounts(account_no) ON DELETE CASCADE ON
+UPDATE CASCADE
+);
+
+create table debit_card(
+dc_no char(16) not null,
+c_id char(4) not null,
+account_no char(5) not null,
+issue_date date not null,
+expiry date not null,
+cvv char(3) not null,
+is_blocked boolean not null default false,
+primary key (dc_no, c_id, account_no),
+check (dc_no like '________________'),
+foreign key (c_id) references customer(c_id) ON DELETE CASCADE ON UPDATE
+CASCADE,
+foreign key (account_no) references accounts(account_no) ON DELETE CASCADE ON
+UPDATE CASCADE
+);
+
+-- R101  --
+
+create table rec_deposit(
+rec_no char(4) primary key,
+c_id char(4) not null,
+
+account_no char(5) not null,
+start_date date not null,
+monthly_pay smallint unsigned not null,
+payments_remain tinyint unsigned not null,
+maturity date not null,
+is_broken boolean not null default false,
+check (rec_no like 'R___'),
+foreign key (c_id) references customer(c_id) ON DELETE CASCADE ON UPDATE
+CASCADE,
+foreign key (account_no) references accounts(account_no) ON DELETE CASCADE ON
+UPDATE CASCADE
+);
+
+
+create table deposit_record(
+p_id int primary key,
+dep_no tinyint unsigned not null,
+rec_no char(4) not null,
+dr_date date not null,
+foreign key (rec_no) references rec_deposit(rec_no) ON DELETE CASCADE ON UPDATE
+CASCADE
+);
+
+create table fix_deposit(
+fix_no char(4) primary key,
+c_id CHAR(4) not null,
+start_date date not null,
+duration tinyint unsigned not null,
+maturity date not null,
+amount float not null,
+is_broken boolean not null default false,
+check (fix_no like 'F___'),
+foreign key (c_id) references customer(c_id) ON DELETE CASCADE ON UPDATE
+CASCADE
+);
+
+-- CC01 --
+
+create table credit_card(
+type_id char(4) primary key,
+card_name varchar(50) not null,
+monthly_fee float not null,
+cc_limit float not null,
+check (type_id like 'CC__')
+);
+
+create table has_cc(
+cc_no char(16) primary key,
+type_id char(4) not null,
+c_id char(4) not null,
+issue_date date not null,
+expiry date not null,
+cvv char(3) not null,
+spent float not null default 0.00,
+last_paid date not null,
+is_blocked boolean not null default false,
+check (cc_no like '________________'),
+foreign key (c_id) references customer(c_id) ON DELETE CASCADE ON UPDATE
+CASCADE,
+foreign key (type_id) references credit_card(type_id) ON DELETE CASCADE ON UPDATE
+CASCADE
+);
+
+create table cc_payment(
+p_id int primary key,
+cc_no char(16) not null,
+amount float not null,
+cc_date date not null,
+fined boolean not null default false,
+foreign key (cc_no) references has_cc(cc_no) ON DELETE CASCADE ON UPDATE
+CASCADE
+);
+
+-- LI01--
+create table loan(
+loan_id char(4) primary key,
+loan_type ENUM('Personal', 'Home', 'Car', 'Education'),
+amount float not null,
+duration int not null,
+interest float not null,
+emi float not null,
+check (loan_id like 'LI__')
+);
+
+
+-- L001 --
+create table borrow_loan(
+loan_no char(4) primary key,
+c_id char(4) not null,
+loan_id char(4) not null,
+start_date date not null,
+payments_remain int not null,
+last_paid date not null,
+check (loan_no like 'L___'),
+foreign key (c_id) references customer(c_id) ON DELETE CASCADE ON UPDATE CASCADE,
+foreign key (loan_id) references loan(loan_id) ON DELETE CASCADE ON UPDATE
+CASCADE
+);
+
+create table loan_payment(
+p_id int primary key,
+loan_no char(4) not null,
+inst_no int not null,
+amount float not null,
+loan_date date not null,
+fined boolean not null default false,
+foreign key (loan_no) references borrow_loan(loan_no) ON DELETE CASCADE ON UPDATE
+CASCADE
+);
+
+
+-- BA001 --
+create Table bank_transactions(
+tr_id char(5) primary key,
+sender char(5) not null,
+receiver char(5) not null,
+amount float not null,
+tr_timestamp timestamp not null,
+branch_id char(4) NOT NULL,
+check (tr_id like 'BA___'),
+
+FOREIGN KEY(sender) REFERENCES accounts(account_no) ON DELETE CASCADE ON UPDATE CASCADE,
+FOREIGN KEY(receiver) REFERENCES accounts(account_no) ON DELETE CASCADE ON UPDATE CASCADE,
+FOREIGN KEY(branch_id) REFERENCES branch(branch_id) ON DELETE CASCADE ON
+UPDATE CASCADE
+);
+
+
+create Table dc_transactions(
+tr_id char(5) primary key,
+sender char(5) not null,
+receiver char(5) not null,
+amount float not null,
+tr_timestamp timestamp not null,
+dc_no char(16) NOT NULL,
+check (tr_id like 'DC___'),
+
+FOREIGN KEY(sender) REFERENCES accounts(account_no) ON DELETE CASCADE ON UPDATE CASCADE,
+FOREIGN KEY(receiver) REFERENCES accounts(account_no) ON DELETE CASCADE ON UPDATE CASCADE,
+FOREIGN KEY(dc_no) REFERENCES debit_card(dc_no) ON DELETE CASCADE ON
+UPDATE CASCADE
+);
+
+
+create Table cc_transactions(
+tr_id char(5) primary key,
+sender char(5) not null,
+receiver char(5) not null,
+amount float not null,
+tr_timestamp timestamp not null,
+cc_no char(16) NOT NULL,
+check (tr_id like 'CC___'),
+
+FOREIGN KEY(sender) REFERENCES accounts(account_no) ON DELETE CASCADE ON UPDATE CASCADE,
+FOREIGN KEY(receiver) REFERENCES accounts(account_no) ON DELETE CASCADE ON UPDATE CASCADE,
+FOREIGN KEY(cc_no) REFERENCES has_cc(cc_no) ON DELETE CASCADE ON
+UPDATE CASCADE
+);
+
+create Table upi_transactions(
+tr_id char(5) primary key,
+sender char(5) not null,
+receiver char(5) not null,
+amount float not null,
+tr_timestamp timestamp not null,
+upi_id varchar(20) NOT NULL,
+check (tr_id like 'UP___'),
+
+FOREIGN KEY(sender) REFERENCES accounts(account_no) ON DELETE CASCADE ON UPDATE CASCADE,
+FOREIGN KEY(receiver) REFERENCES accounts(account_no) ON DELETE CASCADE ON UPDATE CASCADE,
+FOREIGN KEY(upi_id) REFERENCES upi(upi_id) ON DELETE CASCADE ON
+UPDATE CASCADE
+);
+
+
+create Table direct_transactions(
+tr_id char(5) primary key,
+sender char(5) not null,
+receiver char(5) not null,
+amount float not null,
+tr_timestamp timestamp not null,
+check (tr_id like 'DR___'),
+
+FOREIGN KEY(sender) REFERENCES accounts(account_no) ON DELETE CASCADE ON UPDATE CASCADE,
+FOREIGN KEY(receiver) REFERENCES accounts(account_no) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+

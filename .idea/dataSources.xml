@@ -5,7 +5,14 @@
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://projectdb.coe4avf23rbf.ap-south-1.rds.amazonaws.com:3306/test1</jdbc-url>
+      <jdbc-url>jdbc:mysql://projectdb.coe4avf23rbf.ap-south-1.rds.amazonaws.com:3306/bankdb</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+    <data-source source="LOCAL" name="@localhost" uuid="41844216-43b6-471b-8ee7-980cbe801f88">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://localhost:3306</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

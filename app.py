@@ -1,7 +1,7 @@
 from flask import Flask, redirect, url_for, render_template, request, session
 from datetime import timedelta, datetime
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectField, IntegerField
+from wtforms import StringField, DecimalField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectField, IntegerField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from random import randint
 import mysql.connector
@@ -9,8 +9,7 @@ import mysql.connector
 mydb = mysql.connector.connect(host="projectdb.coe4avf23rbf.ap-south-1.rds.amazonaws.com",
 							   user="bankdbgroup",
 							   passwd="bdbcse202",
-							   database="test1")
-
+							   database="bankdb")
 
 mycursor = mydb.cursor()
 
@@ -29,7 +28,7 @@ app.secret_key = "bankDB"
 # Login form
 class LoginForm(FlaskForm):
 	type = SelectField(u'Type', choices=[('c', 'Customer'), ('e', 'Employee'), ('a', 'Admin')])
-	user = IntegerField("ID", validators=[DataRequired()])
+	user = StringField("ID", validators=[DataRequired()])
 	submit = SubmitField("Login")
 
 
@@ -241,7 +240,6 @@ def loans():
 		return redirect(url_for('home'))
 
 
-
 @app.route("/applyloans", methods=["GET", "POST"])
 def applyloans():
 	if 'logged_in' in session:
@@ -323,8 +321,10 @@ def deposits():
 
 # Fix Deposit Form
 class FixDepForm(FlaskForm):
-	amount = IntegerField("Amount", validators=[DataRequired()])
+	amount = IntegerField("Amount", validators=[
+		DataRequired()])  # Can be done for selected values? same use for fix and rec deposit
 	submit = SubmitField("Deposit")
+
 
 # Fix deposit application page
 @app.route("/fixdeposit", methods=["GET", "POST"])
@@ -343,9 +343,8 @@ def fixdeposit():
 	else:
 		return redirect(url_for('home'))
 
-# Recurrence deposit has a change i am thinking
 
-
+# Recurrence deposit select monthly pay from given values and insert
 
 
 # Card List
@@ -418,10 +417,10 @@ def cardapply():
 		if form.validate_on_submit():
 			cardid = form.cc.data
 
-			# return render_template("mycc.html",
-			# 					   form=form,
-			# 					   carddetails=curr_cc,
-			# 					   ccpayment=ccpayment)
+		# return render_template("mycc.html",
+		# 					   form=form,
+		# 					   carddetails=curr_cc,
+		# 					   ccpayment=ccpayment)
 
 		return render_template("mycc.html",
 							   form=form,
@@ -432,42 +431,196 @@ def cardapply():
 		return redirect(url_for('home'))
 
 
-#
-# @app.route("/Customer/Transactions")
-# def Transactions():
-# 	if 'usr' in session:
-# 		customer_id = session['usr']['username']
-#
-# 		# 1.Bank
-# 		q = f"select * from bank_transactions where sender = '{customer_id}' or receiver = '{customer_id}' ; "
-# 		mycursor.execute(q)
-# 		BankTransactionsdetails = mycursor.fetchall()
-#
-# 		# 2.Credit
-# 		q = f"select * from cc_transactions where sender = '{customer_id}' or receiver = '{customer_id}' ; "
-# 		mycursor.execute(q)
-# 		CreditTransactionsdetails = mycursor.fetchall()
-#
-# 		# 3.Debit
-# 		q = f"select * from dc_transactions where sender = '{customer_id}' or receiver = '{customer_id}' ; "
-# 		mycursor.execute(q)
-# 		DebitTransactionsdetails = mycursor.fetchall()
-#
-# 		# 4.UPI
-# 		q = f"select * from upi_transactions where sender = '{customer_id}' or receiver = '{customer_id}' ; "
-# 		mycursor.execute(q)
-# 		UpiTransactionsdetails = mycursor.fetchall()
-#
-# 		# 5.Direct transactions
-# 		q = f"select * from direct_transactions where sender = '{customer_id}' or receiver = '{customer_id}' ; "
-# 		mycursor.execute(q)
-# 		DirectTransactionsdetails = mycursor.fetchall()
-#
-# 		return render_template("Transactions.html", bank=BankTransactionsdetails, credit=CreditTransactionsdetails,
-# 							   debit=DebitTransactionsdetails, upi=UpiTransactionsdetails,
-# 							   direct=DirectTransactionsdetails, data=data)
-#
-#
+# Transaction select form
+class TransactionForm(FlaskForm):
+	tr = SelectField(u'Choose type', coerce=int)
+	submit = SubmitField("Update")
+
+
+@app.route("/transactions", methods=["GET", "POST"])
+def transactions():
+	if 'logged_in' in session and session['type'] == 'c':
+		c_id = session['usr']
+		trid = 1
+		q = f"select b.tr_id, b.sender, b.receiver, b.amount, " \
+			f"b.tr_timestamp, b.branch_id as trid, " \
+			f"'Bank' as Type from bank_transactions b " \
+			f"where sender = {c_id} or receiver = {c_id}  " \
+			f"union " \
+			f"select up.tr_id, up.sender, up.receiver, " \
+			f"up.amount, up.tr_timestamp, up.upi_id as trid, " \
+			f"'UPI' as Type from upi_transactions up " \
+			f"where sender = {c_id}  or receiver = {c_id}  " \
+			f"union " \
+			f"select c.tr_id, c.sender, c.receiver, " \
+			f"c.amount, c.tr_timestamp, c.cc_no as trid, " \
+			f"'Credit Card' as Type from cc_transactions c " \
+			f"where sender = {c_id}  or receiver = {c_id}  " \
+			f"union select d.tr_id, d.sender, d.receiver, " \
+			f"d.amount, d.tr_timestamp, d.dc_no as trid, " \
+			f"'Debit Card' as Type from dc_transactions d " \
+			f"where sender = {c_id} or receiver = {c_id}  " \
+			f"union " \
+			f"select dd.tr_id, dd.sender, dd.receiver, " \
+			f"dd.amount, dd.tr_timestamp, 'Online' as trid, " \
+			f"'Direct Transfer' as Type from direct_transactions dd " \
+			f"where sender = {c_id}  or receiver = {c_id} ;"
+		mycursor.execute(q)
+		transactions = mycursor.fetchall()
+
+		form = TransactionForm()
+		form.tr.choices = [(1, 'All'), (2, 'Bank'),
+						   (3, 'Debit Card'), (4, 'Credit Card'),
+						   (5, 'UPI'), (6, 'Direct Transfer')]
+
+		if form.validate_on_submit():
+			trid = form.tr.data
+
+			if trid == 1:
+				q = f"select b.tr_id, b.sender, b.receiver, b.amount, " \
+					f"b.tr_timestamp, b.branch_id as trid, " \
+					f"'Bank' as Type from bank_transactions b " \
+					f"where sender = {c_id} or receiver = {c_id}  " \
+					f"union " \
+					f"select up.tr_id, up.sender, up.receiver, " \
+					f"up.amount, up.tr_timestamp, up.upi_id as trid, " \
+					f"'UPI' as Type from upi_transactions up " \
+					f"where sender = {c_id}  or receiver = {c_id}  " \
+					f"union " \
+					f"select c.tr_id, c.sender, c.receiver, " \
+					f"c.amount, c.tr_timestamp, c.cc_no as trid, " \
+					f"'Credit Card' as Type from cc_transactions c " \
+					f"where sender = {c_id}  or receiver = {c_id}  " \
+					f"union select d.tr_id, d.sender, d.receiver, " \
+					f"d.amount, d.tr_timestamp, d.dc_no as trid, " \
+					f"'Debit Card' as Type from dc_transactions d " \
+					f"where sender = {c_id} or receiver = {c_id}  " \
+					f"union " \
+					f"select dd.tr_id, dd.sender, dd.receiver, " \
+					f"dd.amount, dd.tr_timestamp, 'Online' as trid, " \
+					f"'Direct Transfer' as Type from direct_transactions dd " \
+					f"where sender = {c_id}  or receiver = {c_id} ;"
+				mycursor.execute(q)
+				transactions = mycursor.fetchall()
+
+
+			elif trid == 2:
+				q = f"select b.tr_id, b.sender, b.receiver, b.amount, " \
+					f"b.tr_timestamp, b.branch_id as trid, " \
+					f"'Bank' as Type from bank_transactions b " \
+					f"where sender = {c_id} or receiver = {c_id};"
+				mycursor.execute(q)
+				transactions = mycursor.fetchall()
+
+			elif trid == 3:
+				q = f"select b.tr_id, b.sender, b.receiver, b.amount, " \
+					f"b.tr_timestamp, b.dc_no as trid, " \
+					f"'Debit Card' as Type from dc_transactions b " \
+					f"where sender = {c_id} or receiver = {c_id};"
+				mycursor.execute(q)
+				transactions = mycursor.fetchall()
+
+			elif trid == 4:
+				q = f"select b.tr_id, b.sender, b.receiver, b.amount, " \
+					f"b.tr_timestamp, b.cc_no as trid, " \
+					f"'Credit Card' as Type from cc_transactions b " \
+					f"where sender = {c_id} or receiver = {c_id};"
+				mycursor.execute(q)
+				transactions = mycursor.fetchall()
+
+			elif trid == 5:
+				q = f"select b.tr_id, b.sender, b.receiver, b.amount, " \
+					f"b.tr_timestamp, b.upi_id as trid, " \
+					f"'UPI' as Type from upi_transactions b " \
+					f"where sender = {c_id} or receiver = {c_id};"
+				mycursor.execute(q)
+				transactions = mycursor.fetchall()
+
+			elif trid == 6:
+				q = f"select dd.tr_id, dd.sender, dd.receiver, " \
+					f"dd.amount, dd.tr_timestamp, 'Online' as trid, " \
+					f"'Direct Transfer' as Type from direct_transactions dd " \
+					f"where sender = {c_id}  or receiver = {c_id} ;"
+				mycursor.execute(q)
+				transactions = mycursor.fetchall()
+
+
+
+# Transfer form
+class TransferForm(FlaskForm):
+	tr = SelectField(u'Choose method', coerce=int)
+	receiver = StringField('Receiver', validators=[DataRequired()])
+	amount = DecimalField('Amount', validators=[DataRequired()])
+	submit = SubmitField('Transfer')
+
+
+
+# Transfer page
+@app.route('/pay', methods=['GET', 'POST'])
+def pay():
+	if 'logged_in' in session and session['type'] == 'c':
+		c_id = session['usr']
+		payTo = None
+		amount = None
+
+		form = TransferForm()
+		form.tr.choices = [(1, 'Debit Card'), (2, 'Credit Card'),
+						   (3, 'UPI'), (4, 'Direct Transfer')]
+
+		if form.validate_on_submit():
+			payTo = form.receiver.data
+			amount = form.amount.data
+			trid = form.tr.data
+
+			if trid == 1:
+				pass
+
+			elif trid == 2:
+				pass
+
+			elif trid == 3:
+				chosenUpi = None
+				q = f"select u.upi_id, a.account_no, ca.c_id " \
+					f"from upi u inner join accounts a on " \
+					f"u.account_no = a.account_no inner join " \
+					f"customer_account ca on " \
+					f"a.account_no = ca.account_no where ca.c_id = {c_id};"
+
+				mycursor.execute(q)
+				upidetails = mycursor.fetchall()
+
+				form = UPITransferForm()
+				form.upi.choice = []
+
+				for i in range(len(upidetails)):
+					form.upi.choices.append((i, upidetails[i][0]))
+
+				if form.validate_on_submit():
+					chosenUpi = upidetails[form.upi.data]
+
+
+			elif trid == 4:
+				chooseAcc = None
+				q = f"select account_no from customer_account where c_id = {c_id};"
+				mycursor.execute(q)
+				acc = mycursor.fetchall()
+
+				form = DirectTransferForm()
+				form.acc.choices = []
+				for i in range(len(acc)):
+					form.acc.choices.append((i, acc[i][0]))
+
+				if form.validate_on_submit():
+					chooseAcc = form.acc.data
+					# query for insert into direct transction
+					# Trigger to update balance in both accounts
+
+
+
+	else:
+		return redirect(url_for('home'))
+
+
 # @app.route("/Customer/Editdetails", methods=["POST", "GET"])
 # def CustomerEditdetails():
 # 	if 'usr' in session:
