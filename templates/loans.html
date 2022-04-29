@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block head %} <Title> Loans </Title> {% endblock %}
+
+{% block body %}
+
+    <br/><br/>
+    <div class="container-md border">
+        <form method="post">
+            <br/><br/>
+            {{ form.hidden_tag() }}
+            <br/><br/><br/>
+            <div class="col-md-6">
+            {{ form.ln.label(class="form-label") }}<br/>
+            {{ form.ln(class="form-select") }}
+            </div>
+            <br/>
+            {{ form.submit(class="btn btn-primary") }}
+            <br/><br/>
+        </form>
+    </div>
+    <br/><br/><br/>
+
+    <div class="container-md border">
+    <h3> Loan Details </h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Loan Number</th>
+          <th scope="col">Loan Type</th>
+          <th scope="col">Amount</th>
+          <th scope="col">Duration (months)</th>
+            <th scope="col">Interest</th>
+            <th scope="col">EMI</th>
+            <th scope="col">Start Date</th>
+            <th scope="col">Remaining Payments</th>
+            <th scope="col">Last Paid</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr>
+              <th scope="row">{{loandetails[0]}}</th>
+               <td>{{loandetails[3]}}</td>
+               <td>{{loandetails[4]}}</td>
+                <td>{{loandetails[5]}}</td>
+                <td>{{loandetails[6]}}</td>
+                <td>{{loandetails[7]}}</td>
+               <td>{{loandetails[8]}}</td>
+                <td>{{loandetails[9]}}</td>
+                <td>{{loandetails[10]}}</td>
+
+          </tr>
+      </tbody>
+    </table>
+    </div>
+
+    <br/><br/><br/>
+
+    <div class="container-md border">
+    <h3> Loan Payments </h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Payment ID</th>
+          <th scope="col">Installment No.</th>
+          <th scope="col">Amount</th>
+          <th scope="col">Date</th>
+            <th scope="col">Fined</th>
+        </tr>
+      </thead>
+      <tbody>
+          {% for i in loanpayments %}
+          <tr>
+              <th scope="row">{{i[0]}}</th>
+               <td>{{i[2]}}</td>
+               <td>{{i[3]}}</td>
+               <td>{{i[4]}}</td>
+              {% if card[5] == 1 %}
+              <td>Yes</td>
+              {% else %}
+              <td>No</td>
+              {% endif %}
+
+          </tr>
+          {% endfor %}
+
+
+      </tbody>
+    </table>
+    </div>
+
+
+
+
+
+
+{% endblock %}

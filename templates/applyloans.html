@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block head %} <Title> Loan Application </Title> {% endblock %}
+
+{% block body %}
+
+    <br/><br/>
+
+    <div class="container-md border">
+    <h3> Available Loans </h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Loan ID</th>
+          <th scope="col">Loan Type</th>
+          <th scope="col">Amount</th>
+          <th scope="col">Duration (months)</th>
+            <th scope="col">Interest</th>
+            <th scope="col">EMI</th>
+        </tr>
+      </thead>
+      <tbody>
+
+      {% for i in availableloans %}
+          <tr>
+              <th scope="row">{{i[0]}}</th>
+               <td>{{i[1]}}</td>
+               <td>{{i[2]}}</td>
+                <td>{{i[3]}}</td>
+                <td>{{i[4]}}</td>
+                <td>{{i[5]}}</td>
+
+          </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+
+    <br/><br/><br/>
+
+
+
+    <div class="container-md border">
+    Loan Application Form
+        <form method="post">
+            <br/><br/>
+            {{ form.hidden_tag() }}
+            <br/><br/><br/>
+            <div class="col-md-6">
+            {{ form.ln.label(class="form-label") }}<br/>
+            {{ form.ln(class="form-select") }}
+            </div>
+            <br/>
+            {{ form.submit(class="btn btn-primary") }}
+            <br/><br/>
+        </form>
+    </div>
+
+
+
+
+
+
+{% endblock %}

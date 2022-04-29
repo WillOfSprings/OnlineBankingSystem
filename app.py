@@ -18,26 +18,10 @@ app.permanent_session_lifetime = timedelta(days=1)
 app.secret_key = "bankDB"
 
 
-# q=f"select * from customer  where c_id = 1050;"
-# mycursor.execute(q)
-# for i in mycursor:
-#     for j in i:
-#         print(j,end=" ")
-
-
-# Login form
-class LoginForm(FlaskForm):
-	type = SelectField(u'Type', choices=[('c', 'Customer'), ('e', 'Employee'), ('a', 'Admin')])
-	user = StringField("ID", validators=[DataRequired()])
-	submit = SubmitField("Login")
-
-
 # Home Page
-
-
 @app.route('/', methods=['GET', 'POST'])
 def home():
-	if 'logged_in' in session:
+	if 'logged_in' in session and session['type'] == "c":
 		q = f"SELECT * FROM customer WHERE c_id = {session['usr']};"
 		mycursor.execute(q)
 		customerDetails = mycursor.fetchone()
@@ -49,9 +33,14 @@ def home():
 		return render_template("home.html")
 
 
+# Login form
+class LoginForm(FlaskForm):
+	type = SelectField(u'Type', choices=[('c', 'Customer'), ('e', 'Employee'), ('a', 'Admin')])
+	user = StringField("ID", validators=[DataRequired()])
+	submit = SubmitField("Login")
+
+
 # Login page
-
-
 @app.route("/login", methods=["POST", "GET"])
 def login():
 	if 'logged_in' in session:
@@ -80,29 +69,29 @@ def login():
 			# if cid is None:
 			# 	return render_template("login.html", form=form)
 			# else:
-			session['usr'] = form.user.data
-			session['type'] = "e"
-			session['logged_in'] = True
-			return redirect(url_for('home'))
+			# session['usr'] = form.user.data
+			# session['type'] = "e"
+			# session['logged_in'] = True
+			# return redirect(url_for('home'))
+			pass
 
 		elif form.type.data == "a":
+			pass
 			# q = f"select a_id from admin where a_id = {form.user.data};"
 			# mycursor.execute(q)
 			# cid = mycursor.fetchone()
 			# if cid is None:
 			# 	return render_template("login.html", form=form)
 			# else:
-			session['usr'] = form.user.data
-			session['type'] = "a"
-			session['logged_in'] = True
-			return redirect(url_for('home'))
+			# session['usr'] = form.user.data
+			# session['type'] = "a"
+			# session['logged_in'] = True
+			# return redirect(url_for('home'))
 
 	return render_template("login.html", form=form)
 
 
 # Logout page
-
-
 @app.route("/logout", methods=["GET"])
 def logout():
 	if 'logged_in' in session:
@@ -113,13 +102,6 @@ def logout():
 	return render_template("logout.html")
 
 
-# @app.route("/Employee")
-# def Employee():
-# 	if 'usr' in session:
-# 		return render_template("Employee.html", data=session['usr'])
-#
-#
-
 # Account List
 class AccountDetailsForm(FlaskForm):
 	acc = SelectField(u'Choose account', coerce=int)
@@ -129,15 +111,10 @@ class AccountDetailsForm(FlaskForm):
 # Account Details
 @app.route("/account", methods=["GET", "POST"])
 def account():
-	# will come here with a help of cid now ti show list of accounts in dropdown
-	if 'logged_in' in session:
+	if 'logged_in' in session and session['type'] == "c":
 		c_id = session['usr']
-
-		# can have multiple accounts -- show balance of each(need to be shown in a loop)
-		# q = f"select * from accounts where account_no in (select account_no from customer_account where c_id= '{customer_id}');"
-
 		q = f"select ca.c_id, a.account_no, a.balance, a.opening_date, " \
-			f"a.closing_date,a.branch_id, ca.phone, ca.email, ca.is_primary " \
+			f"a.closing_date,a.branch_id, ca.linked_phone, ca.linked_email, ca.is_primary " \
 			f"from accounts a inner join customer_account ca on " \
 			f"a.account_no = ca.account_no where ca.c_id = {c_id};"
 
@@ -197,7 +174,7 @@ class LoanDetailsForm(FlaskForm):
 # Loans Page
 @app.route("/loans", methods=["GET", "POST"])
 def loans():
-	if 'logged_in' in session:
+	if 'logged_in' in session and session['type'] == "c":
 		c_id = session['usr']
 		q = f"select b.loan_no, b.c_id, b.loan_id, l.loan_type, l.amount, l.duration, " \
 			f"l.interest, l.emi, b.start_date, b.payments_remain, b.last_paid " \
@@ -225,14 +202,13 @@ def loans():
 			q = f"select * from loan_payment where loan_no = {curr_loan[0]};"
 			mycursor.execute(q)
 			loanpayments = mycursor.fetchall()
-			print(loanpayments)
 
-			return render_template("myloans.html",
+			return render_template("loans.html",
 								   form=form,
 								   loandetails=curr_loan,
 								   loanpayments=loanpayments)
 
-		return render_template("myloans.html",
+		return render_template("loans.html",
 							   form=form,
 							   loandetails=curr_loan,
 							   loanpayments=loanpayments)
@@ -242,7 +218,7 @@ def loans():
 
 @app.route("/applyloans", methods=["GET", "POST"])
 def applyloans():
-	if 'logged_in' in session:
+	if 'logged_in' in session and session['type'] == "c":
 		c_id = session['usr']
 		q = f"select * from loan;"
 		mycursor.execute(q)
@@ -257,6 +233,20 @@ def applyloans():
 
 		if form.validate_on_submit():
 			alid = form.ln.data
+			curr_date = datetime.now().strftime('%Y-%m-%d')
+			q = f"select loan_no from borrow_loan;"
+			mycursor.execute(q)
+			loannos = mycursor.fetchall()
+			lastno = loannos[-1][0]
+			currno = "L" + str(int(lastno[1:]) + 1)
+
+			q = f"insert into borrow_loan(loan_no, c_id, loan_id, " \
+				f"start_date, payments_remain, last_paid) values(" \
+				f"'{currno}', {c_id}, {availableloans[alid][0]}, {curr_date}, " \
+				f"{availableloans[alid][3]}, {curr_date};"
+			mycursor.execute(q)
+			mydb.commit()
+			return render_template("applyloans.html", form=form, availableloans=availableloans)
 
 		return render_template("applyloans.html", form=form, availableloans=availableloans)
 
@@ -273,7 +263,7 @@ class DepDetailsForm(FlaskForm):
 # Loans Page
 @app.route("/deposits", methods=["GET", "POST"])
 def deposits():
-	if 'logged_in' in session:
+	if 'logged_in' in session and session['type'] == "c":
 		c_id = session['usr']
 		q = f"select * from fix_deposit where c_id = {c_id};"
 		mycursor.execute(q)
@@ -321,19 +311,33 @@ def deposits():
 
 # Fix Deposit Form
 class FixDepForm(FlaskForm):
-	amount = IntegerField("Amount", validators=[
-		DataRequired()])  # Can be done for selected values? same use for fix and rec deposit
+	amount = SelectField(u'Amount', coerce=int)
+	duration = SelectField(u'Duration', coerce=int)
 	submit = SubmitField("Deposit")
 
 
 # Fix deposit application page
 @app.route("/fixdeposit", methods=["GET", "POST"])
 def fixdeposit():
-	if 'logged_in' in session:
+	if 'logged_in' in session and session['type'] == "c":
 		c_id = session['usr']
 		form = FixDepForm()
+		amount = None
+		duration = None
+		form.amount.choices = []
+		form.duration.choices = []
+
+		for i in range(1, 11):
+			form.amount.choices.append((i*2000, i*2000))
+
+		for i in range(1, 11):
+			form.duration.choices.append((6*i, 6*i))
+
+		curr_date = datetime.now().strftime('%Y-%m-%d')
+
 		if form.validate_on_submit():
 			amount = form.amount.data
+			duration = form.duration.data
 			q = f"insert into fix_deposit values ({c_id}, {amount}, 0);"
 			mycursor.execute(q)
 			mydb.commit()
