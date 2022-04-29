@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block head %} <Title> My Loans </Title> {% endblock %}
+
+{% block body %}
+
+
+    <div class="container-md border">
+    <h3> Fixed Deposits </h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">FD Number</th>
+          <th scope="col">Start Date</th>
+          <th scope="col">Duration</th>
+          <th scope="col">Maturity Date</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Broken</th>
+        </tr>
+      </thead>
+      <tbody>
+
+      {% for fd in fixdetails %}
+          <tr>
+              <th scope="row">{{fd[0]}}</th>
+               <td>{{fd[2]}}</td>
+               <td>{{fd[3]}}</td>
+               <td>{{fd[4]}}</td>
+               <td>{{fd[5]}}</td>
+              {% if fd[6] == 1 %}
+              <td>Yes</td>
+              {% else %}
+              <td>No</td>
+              {% endif %}
+          </tr>
+      {% endfor %}
+
+
+      </tbody>
+    </table>
+    </div>
+
+    <br/><br/>
+    <div class="container-md border">
+        <form method="post">
+
+            {{ form.hidden_tag() }}
+
+            <div class="col-md-6">
+            {{ form.dp.label(class="form-label") }}<br/>
+            {{ form.dp(class="form-select") }}
+            </div>
+            <br/>
+            {{ form.submit(class="btn btn-primary") }}
+            <br/><br/>
+        </form>
+    </div>
+
+
+    <br/><br/>
+    <div class="container-md border">
+    <h3> Recurring Deposit Details </h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Deposit Number</th>
+          <th scope="col">Account No.</th>
+          <th scope="col">Start Date</th>
+          <th scope="col">Monthly Amount</th>
+            <th scope="col">Remaining Payments</th>
+            <th scope="col">Maturity</th>
+            <th scope="col">Broken</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr>
+              <th scope="row">{{recdetails[0]}}</th>
+               <td>{{recdetails[2]}}</td>
+               <td>{{recdetails[3]}}</td>
+               <td>{{recdetails[4]}}</td>
+               <td>{{recdetails[5]}}</td>
+              <td>{{recdetails[6]}}</td>
+              {% if recdetails[7] == 1 %}
+              <td>Yes</td>
+              {% else %}
+              <td>No</td>
+              {% endif %}
+          </tr>
+
+
+      </tbody>
+    </table>
+    </div>
+
+
+
+    <br/><br/><br/>
+
+    <div class="container-md border">
+    <h3> Deposit Payments </h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Payment ID</th>
+          <th scope="col">Recurrence No.</th>
+          <th scope="col">Date</th>
+        </tr>
+      </thead>
+      <tbody>
+
+      {% for i in recpayments %}
+          <tr>
+              <th scope="row">{{i[0]}}</th>
+               <td>{{i[2]}}</td>
+               <td>{{i[3]}}</td>
+          </tr>
+      {% endfor %}
+
+
+      </tbody>
+    </table>
+    </div>
+
+
+
+
+
+
+{% endblock %}

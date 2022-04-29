@@ -123,7 +123,6 @@ UPDATE CASCADE
 create table rec_deposit(
 rec_no char(4) primary key,
 c_id char(4) not null,
-
 account_no char(5) not null,
 start_date date not null,
 monthly_pay smallint unsigned not null,
