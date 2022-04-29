@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block head %} <Title> My Cards </Title> {% endblock %}
+
+{% block body %}
+
+    <br/><br/>
+    <div class="container-md border">
+        <form method="post">
+
+            {{ form.hidden_tag() }}
+
+            <div class="col-md-6">
+            {{ form.cc.label(class="form-label") }}<br/>
+            {{ form.cc(class="form-select") }}
+            </div>
+            <br/>
+            {{ form.submit(class="btn btn-primary") }}
+            <br/><br/>
+        </form>
+    </div>
+    <br/><br/><br/>
+
+    <div class="container-md border">
+    <h3> Card Details </h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Card Number</th>
+          <th scope="col">Type ID</th>
+          <th scope="col">Card Name</th>
+          <th scope="col">Monthly Fee</th>
+            <th scope="col">Limit</th>
+            <th scope="col">Issue Date</th>
+            <th scope="col">Expiry</th>
+            <th scope="col">CVV</th>
+            <th scope="col">Spent</th>
+            <th scope="col">Last Paid</th>
+            <th scope="col">Blocked</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr>
+              <th scope="row">{{carddetails[0]}}</th>
+              <td>{{carddetails[1]}}</td>
+               <td>{{carddetails[2]}}</td>
+               <td>{{carddetails[3]}}</td>
+               <td>{{carddetails[4]}}</td>
+               <td>{{carddetails[5]}}</td>
+              <td>{{carddetails[6]}}</td>
+              <td>{{carddetails[7]}}</td>
+              <td>{{carddetails[8]}}</td>
+              <td>{{carddetails[9]}}</td>
+              {%  if carddetails[10] == 1 %}
+                <td>Yes</td>
+              {% else %}
+                <td>No</td>
+              {% endif %}
+
+          </tr>
+
+
+      </tbody>
+    </table>
+    </div>
+
+    <br/><br/><br/>
+
+    <div class="container-md border">
+    <h3> Card Payments </h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Payment ID</th>
+          <th scope="col">Amount</th>
+          <th scope="col">Date</th>
+            <th scope="col">Fined</th>
+        </tr>
+      </thead>
+      <tbody>
+
+      {% for i in ccpayment %}
+          <tr>
+              <th scope="row">{{i[0]}}</th>
+               <td>{{i[2]}}</td>
+               <td>{{i[3]}}</td>
+              {% if i[4] == 1 %}
+              <td>Yes</td>
+              {% else %}
+              <td>No</td>
+              {% endif %}
+
+          </tr>
+      {% endfor %}
+
+
+      </tbody>
+    </table>
+    </div>
+
+
+
+
+
+
+{% endblock %}

@@ -360,7 +360,7 @@ class CardDetailsForm(FlaskForm):
 # Cards Page
 @app.route("/cards", methods=["GET", "POST"])
 def cards():
-	if 'logged_in' in session:
+	if 'logged_in' in session and session['type'] == "c":
 		c_id = session['usr']
 		q = f"select hc.cc_no, hc.type_id, cc.card_name, cc.monthly_fee, cc.cc_limit," \
 			f" hc.issue_date, hc.expiry, hc.cvv, hc.spent, hc.last_paid, hc.is_blocked " \
@@ -371,7 +371,7 @@ def cards():
 		ccid = 0
 		curr_cc = carddetails[ccid]
 
-		q = f"select p_id, amount, cc_date, fined from cc_payment where cc_no = {curr_cc[0]};"
+		q = f"select * from cc_payment where cc_no = {curr_cc[0]};"
 		mycursor.execute(q)
 		ccpayment = mycursor.fetchall()
 
@@ -385,7 +385,7 @@ def cards():
 			ccid = form.cc.data
 			curr_cc = carddetails[ccid]
 
-			q = f"select p_id, amount, cc_date, fined from cc_payment where cc_no = {curr_cc[0]};"
+			q = f"select * from cc_payment where cc_no = {curr_cc[0]};"
 			mycursor.execute(q)
 			ccpayment = mycursor.fetchall()
 
