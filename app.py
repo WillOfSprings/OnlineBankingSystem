@@ -1,7 +1,8 @@
 from flask import Flask, redirect, url_for, render_template, request, session
 from datetime import timedelta, datetime
 from flask_wtf import FlaskForm
-from wtforms import StringField, DecimalField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectField, IntegerField
+from wtforms import StringField, DecimalField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectField, \
+	IntegerField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from random import randint
 import mysql.connector
@@ -77,16 +78,16 @@ def login():
 
 		elif form.type.data == "a":
 			pass
-			# q = f"select a_id from admin where a_id = {form.user.data};"
-			# mycursor.execute(q)
-			# cid = mycursor.fetchone()
-			# if cid is None:
-			# 	return render_template("login.html", form=form)
-			# else:
-			# session['usr'] = form.user.data
-			# session['type'] = "a"
-			# session['logged_in'] = True
-			# return redirect(url_for('home'))
+		# q = f"select a_id from admin where a_id = {form.user.data};"
+		# mycursor.execute(q)
+		# cid = mycursor.fetchone()
+		# if cid is None:
+		# 	return render_template("login.html", form=form)
+		# else:
+		# session['usr'] = form.user.data
+		# session['type'] = "a"
+		# session['logged_in'] = True
+		# return redirect(url_for('home'))
 
 	return render_template("login.html", form=form)
 
@@ -309,44 +310,44 @@ def deposits():
 		return redirect(url_for('home'))
 
 
-# Fix Deposit Form
-class FixDepForm(FlaskForm):
-	amount = SelectField(u'Amount', coerce=int)
-	duration = SelectField(u'Duration', coerce=int)
-	submit = SubmitField("Deposit")
-
-
-# Fix deposit application page
-@app.route("/fixdeposit", methods=["GET", "POST"])
-def fixdeposit():
-	if 'logged_in' in session and session['type'] == "c":
-		c_id = session['usr']
-		form = FixDepForm()
-		amount = None
-		duration = None
-		form.amount.choices = []
-		form.duration.choices = []
-
-		for i in range(1, 11):
-			form.amount.choices.append((i*2000, i*2000))
-
-		for i in range(1, 11):
-			form.duration.choices.append((6*i, 6*i))
-
-		curr_date = datetime.now().strftime('%Y-%m-%d')
-
-		if form.validate_on_submit():
-			amount = form.amount.data
-			duration = form.duration.data
-			q = f"insert into fix_deposit values ({c_id}, {amount}, 0);"
-			mycursor.execute(q)
-			mydb.commit()
-			return redirect(url_for('deposits'))
-		return render_template("fixdeposit.html", form=form)
-
-	else:
-		return redirect(url_for('home'))
-
+# # Fix Deposit Form
+# class FixDepForm(FlaskForm):
+# 	amount = SelectField(u'Amount', coerce=int)
+# 	duration = SelectField(u'Duration', coerce=int)
+# 	submit = SubmitField("Deposit")
+#
+#
+# # Fix deposit application page
+# @app.route("/fixdeposit", methods=["GET", "POST"])
+# def fixdeposit():
+# 	if 'logged_in' in session and session['type'] == "c":
+# 		c_id = session['usr']
+# 		form = FixDepForm()
+# 		amount = None
+# 		duration = None
+# 		form.amount.choices = []
+# 		form.duration.choices = []
+#
+# 		for i in range(1, 11):
+# 			form.amount.choices.append((i*2000, i*2000))
+#
+# 		for i in range(1, 11):
+# 			form.duration.choices.append((6*i, 6*i))
+#
+# 		curr_date = datetime.now().strftime('%Y-%m-%d')
+#
+# 		if form.validate_on_submit():
+# 			amount = form.amount.data
+# 			duration = form.duration.data
+# 			q = f"insert into fix_deposit values ({c_id}, {amount}, 0);"
+# 			mycursor.execute(q)
+# 			mydb.commit()
+# 			return redirect(url_for('deposits'))
+# 		return render_template("fixdeposit.html", form=form)
+#
+# 	else:
+# 		return redirect(url_for('home'))
+#
 
 # Recurrence deposit select monthly pay from given values and insert
 
@@ -402,42 +403,42 @@ def cards():
 		return redirect(url_for('home'))
 
 
-# Card application page
-@app.route("/cardapply", methods=["GET", "POST"])
-def cardapply():
-	if 'logged_in' in session:
-		c_id = session['usr']
-		q = f"select * from credit_card;"
-		mycursor.execute(q)
-		cardtypes = mycursor.fetchall()
-
-		cardid = None
-		form = CardDetailsForm()
-		form.cc.choices = []
-
-		for i in range(len(cardtypes)):
-			form.cc.choices.append((i, cardtypes[i][0]))
-
-		if form.validate_on_submit():
-			cardid = form.cc.data
-
-		# return render_template("mycc.html",
-		# 					   form=form,
-		# 					   carddetails=curr_cc,
-		# 					   ccpayment=ccpayment)
-
-		return render_template("mycc.html",
-							   form=form,
-							   carddetails=curr_cc,
-							   ccpayment=ccpayment)
-
-	else:
-		return redirect(url_for('home'))
+# # Card application page
+# @app.route("/cardapply", methods=["GET", "POST"])
+# def cardapply():
+# 	if 'logged_in' in session:
+# 		c_id = session['usr']
+# 		q = f"select * from credit_card;"
+# 		mycursor.execute(q)
+# 		cardtypes = mycursor.fetchall()
+#
+# 		cardid = None
+# 		form = CardDetailsForm()
+# 		form.cc.choices = []
+#
+# 		for i in range(len(cardtypes)):
+# 			form.cc.choices.append((i, cardtypes[i][0]))
+#
+# 		if form.validate_on_submit():
+# 			cardid = form.cc.data
+#
+# 		# return render_template("mycc.html",
+# 		# 					   form=form,
+# 		# 					   carddetails=curr_cc,
+# 		# 					   ccpayment=ccpayment)
+#
+# 		return render_template("mycc.html",
+# 							   form=form,
+# 							   carddetails=curr_cc,
+# 							   ccpayment=ccpayment)
+#
+# 	else:
+# 		return redirect(url_for('home'))
 
 
 # Transaction select form
 class TransactionForm(FlaskForm):
-	tr = SelectField(u'Choose type', coerce=int)
+	tr = SelectField(u'Choose method', coerce=int)
 	submit = SubmitField("Update")
 
 
@@ -549,14 +550,12 @@ def transactions():
 				transactions = mycursor.fetchall()
 
 
-
 # Transfer form
 class TransferForm(FlaskForm):
 	tr = SelectField(u'Choose method', coerce=int)
 	receiver = StringField('Receiver', validators=[DataRequired()])
 	amount = DecimalField('Amount', validators=[DataRequired()])
 	submit = SubmitField('Transfer')
-
 
 
 # Transfer page
@@ -576,11 +575,62 @@ def pay():
 			amount = form.amount.data
 			trid = form.tr.data
 
+			q = f"select 1 as status where exists(select c_id from customer " \
+				f"where c_id = {payTo});"
+			mycursor.execute(q)
+			if mycursor.fetchone() is None:
+				return redirect(url_for('pay'))
+
 			if trid == 1:
-				pass
+				chosenCard = None
+				q = f"select dc_no, account_no from debit_card where c_id = {c_id};"
+				mycursor.execute(q)
+				cards = mycursor.fetchall()
+
+				form2 = TransferForm()
+				form2.tr.choices = []
+				for i in range(len(cards)):
+					form2.tr.choices.append((i, cards[i][0]))
+
+				if form2.validate_on_submit():
+					chosenCard = form2.tr.data
+					q = f"select tr_id from dc_transactions;"
+					mycursor.execute(q)
+					tr_id = mycursor.fetchall()
+					tr_id = tr_id[-1][0]
+					tr_id = 'DC' + str(int(tr_id[2:]) + 1)
+					q = f"insert into dc_transactions(tr_id, sender, receiver, amount, tr_timestamp, dc_no) " \
+						f"values({tr_id}, {cards[chosenCard][1]}, {payTo}, {amount}," \
+						f" {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}, {cards[chosenCard][0]} );"
+					mycursor.execute(q)
+					mydb.commit()
+					return redirect(url_for('pay'))
+
 
 			elif trid == 2:
-				pass
+				chosenCard = None
+				q = f"select cc_no from has_cc where c_id = {c_id};"
+				mycursor.execute(q)
+				cards = mycursor.fetchall()
+
+				form2 = TransferForm()
+				form2.tr.choices = []
+				for i in range(len(cards)):
+					form2.tr.choices.append((i, cards[i][0]))
+
+				if form2.validate_on_submit():
+					chosenCard = form2.tr.data
+					q = f"select tr_id from cc_transactions;"
+					mycursor.execute(q)
+					tr_id = mycursor.fetchall()
+					tr_id = tr_id[-1][0]
+					tr_id = 'CC' + str(int(tr_id[2:]) + 1)
+					q = f"insert into cc_transactions(tr_id, sender, receiver, amount, tr_timestamp, cc_no) " \
+						f"values({tr_id}, '19998', {payTo}, {amount}," \
+						f" {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}, {cards[chosenCard][0]});"
+					mycursor.execute(q)
+					mydb.commit()
+					return redirect(url_for('pay'))
 
 			elif trid == 3:
 				chosenUpi = None
@@ -589,18 +639,29 @@ def pay():
 					f"u.account_no = a.account_no inner join " \
 					f"customer_account ca on " \
 					f"a.account_no = ca.account_no where ca.c_id = {c_id};"
-
 				mycursor.execute(q)
 				upidetails = mycursor.fetchall()
 
-				form = UPITransferForm()
-				form.upi.choice = []
+				form2 = TransferForm()
+				form2.tr.choices = []
 
 				for i in range(len(upidetails)):
-					form.upi.choices.append((i, upidetails[i][0]))
+					form2.tr.choices.append((i, upidetails[i][0]))
 
-				if form.validate_on_submit():
-					chosenUpi = upidetails[form.upi.data]
+				if form2.validate_on_submit():
+					chosenUpi = form2.tr.data
+					q = f"select tr_id from upi_transactions;"
+					mycursor.execute(q)
+					tr_id = mycursor.fetchall()
+					tr_id = tr_id[-1][0]
+					tr_id = 'UP' + str(int(tr_id[2:]) + 1)
+					q = f"insert into upi_transactions(tr_id, sender, receiver, amount, tr_timestamp, upi_id) " \
+						f"values({tr_id}, {upidetails[chosenUpi][1]}, {payTo}, {amount}," \
+						f" {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}, {upidetails[chosenUpi][0]});"
+					mycursor.execute(q)
+					mydb.commit()
+					return redirect(url_for('pay'))
+
 
 
 			elif trid == 4:
@@ -609,15 +670,25 @@ def pay():
 				mycursor.execute(q)
 				acc = mycursor.fetchall()
 
-				form = DirectTransferForm()
-				form.acc.choices = []
+				form2 = TransferForm()
+				form2.tr.choices = []
 				for i in range(len(acc)):
-					form.acc.choices.append((i, acc[i][0]))
+					form2.tr.choices.append((i, acc[i][0]))
 
-				if form.validate_on_submit():
-					chooseAcc = form.acc.data
-					# query for insert into direct transction
-					# Trigger to update balance in both accounts
+				if form2.validate_on_submit():
+					chooseAcc = form2.tr.data
+					q = f"select tr_id from direct_transactions;"
+					mycursor.execute(q)
+					tr_id = mycursor.fetchall()
+					tr_id = tr_id[-1][0]
+					tr_id = 'DR' + str(int(tr_id[2:]) + 1)
+					q = f"insert into direct_transactions(tr_id, sender, receiver, amount, tr_timestamp) " \
+						f"values({tr_id}, {acc[chooseAcc][0]}, {payTo}, {amount}," \
+						f" {datetime.now().strftime('%Y-%m-%d %H:%M:%S')});"
+					mycursor.execute(q)
+					mydb.commit()
+					return redirect(url_for('pay'))
+
 
 
 
