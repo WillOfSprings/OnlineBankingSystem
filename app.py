@@ -685,7 +685,7 @@ def pay():
 					return redirect(url_for('pay'))
 				return render_template('transfer.html', form=form2)
 
-		render_template('pay.html', form=form)
+		return render_template('pay.html', form=form)
 
 
 	else:
