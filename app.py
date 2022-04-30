@@ -120,18 +120,18 @@ def account():
 		q = f"select ca.c_id, a.account_no, a.balance, a.opening_date, " \
 			f"a.closing_date,a.branch_id, ca.linked_phone, ca.linked_email, ca.is_primary " \
 			f"from accounts a inner join customer_account ca on " \
-			f"a.account_no = ca.account_no where ca.c_id = {c_id};"
+			f"a.account_no = ca.account_no where ca.c_id ='{c_id}';"
 
 		mycursor.execute(q)
 		accountdetails = mycursor.fetchall()
 
 		aid = 0
 		curr_acc = accountdetails[aid]
-		q = f"select * from debit_card where account_no={curr_acc[1]} and c_id ={c_id};"
+		q = f"select * from debit_card where account_no='{curr_acc[1]}' and c_id ='{c_id}';"
 		mycursor.execute(q)
 		card = mycursor.fetchone()
 
-		q = f"select * from upi where account_no = {curr_acc[1]};"
+		q = f"select * from upi where account_no = '{curr_acc[1]}';"
 		mycursor.execute(q)
 		upi = mycursor.fetchall()
 
@@ -145,11 +145,11 @@ def account():
 			aid = form.acc.data
 			curr_acc = accountdetails[aid]
 
-			q = f"select * from debit_card where account_no={curr_acc[1]} and c_id ={session['usr']};"
+			q = f"select * from debit_card where account_no='{curr_acc[1]}' and c_id ='{session['usr']}';"
 			mycursor.execute(q)
 			card = mycursor.fetchone()
 
-			q = f"select * from upi where account_no = {curr_acc[1]};"
+			q = f"select * from upi where account_no = '{curr_acc[1]}';"
 			mycursor.execute(q)
 			upi = mycursor.fetchall()
 
@@ -182,14 +182,14 @@ def loans():
 		c_id = session['usr']
 		q = f"select b.loan_no, b.c_id, b.loan_id, l.loan_type, l.amount, l.duration, " \
 			f"l.interest, l.emi, b.start_date, b.payments_remain, b.last_paid " \
-			f"from borrow_loan b, loan l where b.loan_id = l.loan_id and b.c_id = {c_id};"
+			f"from borrow_loan b, loan l where b.loan_id = l.loan_id and b.c_id = '{c_id}';"
 		mycursor.execute(q)
 		loandetails = mycursor.fetchall()
 
 		lid = 0
 		curr_loan = loandetails[lid]
 
-		q = f"select * from loan_payment where loan_no = {curr_loan[0]};"
+		q = f"select * from loan_payment where loan_no = '{curr_loan[0]}';"
 		mycursor.execute(q)
 		loanpayments = mycursor.fetchall()
 
@@ -203,7 +203,7 @@ def loans():
 			lid = form.ln.data
 			curr_loan = loandetails[lid]
 
-			q = f"select * from loan_payment where loan_no = {curr_loan[0]};"
+			q = f"select * from loan_payment where loan_no = '{curr_loan[0]}';"
 			mycursor.execute(q)
 			loanpayments = mycursor.fetchall()
 
@@ -246,8 +246,8 @@ def applyloans():
 
 			q = f"insert into borrow_loan(loan_no, c_id, loan_id, " \
 				f"start_date, payments_remain, last_paid) values(" \
-				f"'{currno}', {c_id}, {availableloans[alid][0]}, {curr_date}, " \
-				f"{availableloans[alid][3]}, {curr_date};"
+				f"'{currno}', '{c_id}', '{availableloans[alid][0]}', '{curr_date}', " \
+				f"'{availableloans[alid][3]}', '{curr_date}';"
 			mycursor.execute(q)
 			mydb.commit()
 			return render_template("applyloans.html", form=form, availableloans=availableloans)
@@ -269,18 +269,18 @@ class DepDetailsForm(FlaskForm):
 def deposits():
 	if 'logged_in' in session and session['type'] == "c":
 		c_id = session['usr']
-		q = f"select * from fix_deposit where c_id = {c_id};"
+		q = f"select * from fix_deposit where c_id = '{c_id}';"
 		mycursor.execute(q)
 		fixdetails = mycursor.fetchall()
 
-		q = f"select * from rec_deposit where c_id = {c_id};"
+		q = f"select * from rec_deposit where c_id = '{c_id}';"
 		mycursor.execute(q)
 		recdetails = mycursor.fetchall()
 
 		rid = 0
 		curr_rec = recdetails[rid]
 
-		q = f"select * from deposit_record where rec_no = {curr_rec[0]};"
+		q = f"select * from deposit_record where rec_no = '{curr_rec[0]}';"
 		mycursor.execute(q)
 		recpayments = mycursor.fetchall()
 
@@ -294,7 +294,7 @@ def deposits():
 			rid = form.dp.data
 			curr_rec = recdetails[rid]
 
-			q = f"select * from deposit_record where rec_no = {curr_rec[0]};"
+			q = f"select * from deposit_record where rec_no = '{curr_rec[0]}';"
 			mycursor.execute(q)
 			recpayments = mycursor.fetchall()
 
@@ -368,14 +368,14 @@ def cards():
 		c_id = session['usr']
 		q = f"select hc.cc_no, hc.type_id, cc.card_name, cc.monthly_fee, cc.cc_limit," \
 			f" hc.issue_date, hc.expiry, hc.cvv, hc.spent, hc.last_paid, hc.is_blocked " \
-			f"from credit_card cc inner join has_cc hc on cc.type_id = hc.type_id where hc.c_id = {c_id};"
+			f"from credit_card cc inner join has_cc hc on cc.type_id = hc.type_id where hc.c_id = '{c_id}';"
 		mycursor.execute(q)
 		carddetails = mycursor.fetchall()
 
 		ccid = 0
 		curr_cc = carddetails[ccid]
 
-		q = f"select * from cc_payment where cc_no = {curr_cc[0]};"
+		q = f"select * from cc_payment where cc_no = '{curr_cc[0]}';"
 		mycursor.execute(q)
 		ccpayment = mycursor.fetchall()
 
@@ -389,7 +389,7 @@ def cards():
 			ccid = form.cc.data
 			curr_cc = carddetails[ccid]
 
-			q = f"select * from cc_payment where cc_no = {curr_cc[0]};"
+			q = f"select * from cc_payment where cc_no = '{curr_cc[0]}';"
 			mycursor.execute(q)
 			ccpayment = mycursor.fetchall()
 
@@ -453,26 +453,26 @@ def transactions():
 		q = f"select b.tr_id, b.sender, b.receiver, b.amount, " \
 			f"b.tr_timestamp, b.branch_id as trid, " \
 			f"'Bank' as Type from bank_transactions b " \
-			f"where sender = {c_id} or receiver = {c_id}  " \
+			f"where sender = '{c_id}' or receiver = '{c_id}'  " \
 			f"union " \
 			f"select up.tr_id, up.sender, up.receiver, " \
 			f"up.amount, up.tr_timestamp, up.upi_id as trid, " \
 			f"'UPI' as Type from upi_transactions up " \
-			f"where sender = {c_id}  or receiver = {c_id}  " \
+			f"where sender = '{c_id}'  or receiver = '{c_id}'  " \
 			f"union " \
 			f"select c.tr_id, c.sender, c.receiver, " \
 			f"c.amount, c.tr_timestamp, c.cc_no as trid, " \
 			f"'Credit Card' as Type from cc_transactions c " \
-			f"where sender = {c_id}  or receiver = {c_id}  " \
+			f"where sender = '{c_id}'  or receiver = '{c_id}'  " \
 			f"union select d.tr_id, d.sender, d.receiver, " \
 			f"d.amount, d.tr_timestamp, d.dc_no as trid, " \
 			f"'Debit Card' as Type from dc_transactions d " \
-			f"where sender = {c_id} or receiver = {c_id}  " \
+			f"where sender = '{c_id}' or receiver = '{c_id}'  " \
 			f"union " \
 			f"select dd.tr_id, dd.sender, dd.receiver, " \
 			f"dd.amount, dd.tr_timestamp, 'Online' as trid, " \
 			f"'Direct Transfer' as Type from direct_transactions dd " \
-			f"where sender = {c_id}  or receiver = {c_id} ;"
+			f"where sender = '{c_id}'  or receiver = '{c_id}' ;"
 		mycursor.execute(q)
 		transactions = mycursor.fetchall()
 
@@ -488,26 +488,26 @@ def transactions():
 				q = f"select b.tr_id, b.sender, b.receiver, b.amount, " \
 					f"b.tr_timestamp, b.branch_id as trid, " \
 					f"'Bank' as Type from bank_transactions b " \
-					f"where sender = {c_id} or receiver = {c_id}  " \
+					f"where sender = '{c_id}' or receiver = '{c_id}'  " \
 					f"union " \
 					f"select up.tr_id, up.sender, up.receiver, " \
 					f"up.amount, up.tr_timestamp, up.upi_id as trid, " \
 					f"'UPI' as Type from upi_transactions up " \
-					f"where sender = {c_id}  or receiver = {c_id}  " \
+					f"where sender = '{c_id}'  or receiver = '{c_id}' " \
 					f"union " \
 					f"select c.tr_id, c.sender, c.receiver, " \
 					f"c.amount, c.tr_timestamp, c.cc_no as trid, " \
 					f"'Credit Card' as Type from cc_transactions c " \
-					f"where sender = {c_id}  or receiver = {c_id}  " \
+					f"where sender = '{c_id}'  or receiver = '{c_id}'  " \
 					f"union select d.tr_id, d.sender, d.receiver, " \
 					f"d.amount, d.tr_timestamp, d.dc_no as trid, " \
 					f"'Debit Card' as Type from dc_transactions d " \
-					f"where sender = {c_id} or receiver = {c_id}  " \
+					f"where sender = '{c_id}' or receiver = '{c_id}'  " \
 					f"union " \
 					f"select dd.tr_id, dd.sender, dd.receiver, " \
 					f"dd.amount, dd.tr_timestamp, 'Online' as trid, " \
 					f"'Direct Transfer' as Type from direct_transactions dd " \
-					f"where sender = {c_id}  or receiver = {c_id} ;"
+					f"where sender = '{c_id}'  or receiver = '{c_id}' ;"
 				mycursor.execute(q)
 				transactions = mycursor.fetchall()
 
@@ -516,7 +516,7 @@ def transactions():
 				q = f"select b.tr_id, b.sender, b.receiver, b.amount, " \
 					f"b.tr_timestamp, b.branch_id as trid, " \
 					f"'Bank' as Type from bank_transactions b " \
-					f"where sender = {c_id} or receiver = {c_id};"
+					f"where sender = '{c_id}' or receiver = '{c_id}';"
 				mycursor.execute(q)
 				transactions = mycursor.fetchall()
 
@@ -524,7 +524,7 @@ def transactions():
 				q = f"select b.tr_id, b.sender, b.receiver, b.amount, " \
 					f"b.tr_timestamp, b.dc_no as trid, " \
 					f"'Debit Card' as Type from dc_transactions b " \
-					f"where sender = {c_id} or receiver = {c_id};"
+					f"where sender = '{c_id}' or receiver = '{c_id}';"
 				mycursor.execute(q)
 				transactions = mycursor.fetchall()
 
@@ -532,7 +532,7 @@ def transactions():
 				q = f"select b.tr_id, b.sender, b.receiver, b.amount, " \
 					f"b.tr_timestamp, b.cc_no as trid, " \
 					f"'Credit Card' as Type from cc_transactions b " \
-					f"where sender = {c_id} or receiver = {c_id};"
+					f"where sender = '{c_id}' or receiver = '{c_id}';"
 				mycursor.execute(q)
 				transactions = mycursor.fetchall()
 
@@ -540,7 +540,7 @@ def transactions():
 				q = f"select b.tr_id, b.sender, b.receiver, b.amount, " \
 					f"b.tr_timestamp, b.upi_id as trid, " \
 					f"'UPI' as Type from upi_transactions b " \
-					f"where sender = {c_id} or receiver = {c_id};"
+					f"where sender = '{c_id}' or receiver = '{c_id}';"
 				mycursor.execute(q)
 				transactions = mycursor.fetchall()
 
@@ -548,7 +548,7 @@ def transactions():
 				q = f"select dd.tr_id, dd.sender, dd.receiver, " \
 					f"dd.amount, dd.tr_timestamp, 'Online' as trid, " \
 					f"'Direct Transfer' as Type from direct_transactions dd " \
-					f"where sender = {c_id}  or receiver = {c_id} ;"
+					f"where sender = '{c_id}'  or receiver = '{c_id}' ;"
 				mycursor.execute(q)
 				transactions = mycursor.fetchall()
 
@@ -582,14 +582,14 @@ def pay():
 			form2.tr.choices = []
 
 			q = f"select 1 as status where exists(select c_id from customer " \
-				f"where c_id = {payTo});"
+				f"where c_id = '{payTo}');"
 			mycursor.execute(q)
 			if mycursor.fetchone() is None:
 				return redirect(url_for('pay'))
 
 			if trid == 1:
 				chosenCard = None
-				q = f"select dc_no, account_no from debit_card where c_id = {c_id};"
+				q = f"select dc_no, account_no from debit_card where c_id = '{c_id}';"
 				mycursor.execute(q)
 				cards = mycursor.fetchall()
 
@@ -604,8 +604,8 @@ def pay():
 					tr_id = tr_id[-1][0]
 					tr_id = 'DC' + str(int(tr_id[2:]) + 1)
 					q = f"insert into dc_transactions(tr_id, sender, receiver, amount, tr_timestamp, dc_no) " \
-						f"values({tr_id}, {cards[chosenCard][1]}, {payTo}, {amount}," \
-						f" {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}, {cards[chosenCard][0]} );"
+						f"values('{tr_id}', '{cards[chosenCard][1]}', '{payTo}', '{amount}'," \
+						f" '{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}', '{cards[chosenCard][0]}' );"
 					mycursor.execute(q)
 					mydb.commit()
 					return redirect(url_for('pay'))
@@ -613,7 +613,7 @@ def pay():
 
 			elif trid == 2:
 				chosenCard = None
-				q = f"select cc_no from has_cc where c_id = {c_id};"
+				q = f"select cc_no from has_cc where c_id = '{c_id}';"
 				mycursor.execute(q)
 				cards = mycursor.fetchall()
 				for i in range(len(cards)):
@@ -627,8 +627,8 @@ def pay():
 					tr_id = tr_id[-1][0]
 					tr_id = 'CC' + str(int(tr_id[2:]) + 1)
 					q = f"insert into cc_transactions(tr_id, sender, receiver, amount, tr_timestamp, cc_no) " \
-						f"values({tr_id}, '19998', {payTo}, {amount}," \
-						f" {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}, {cards[chosenCard][0]});"
+						f"values('{tr_id}', '19998', '{payTo}', '{amount}'," \
+						f" '{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}', '{cards[chosenCard][0]}');"
 					mycursor.execute(q)
 					mydb.commit()
 					return redirect(url_for('pay'))
@@ -640,7 +640,7 @@ def pay():
 					f"from upi u inner join accounts a on " \
 					f"u.account_no = a.account_no inner join " \
 					f"customer_account ca on " \
-					f"a.account_no = ca.account_no where ca.c_id = {c_id};"
+					f"a.account_no = ca.account_no where ca.c_id = '{c_id}';"
 				mycursor.execute(q)
 				upidetails = mycursor.fetchall()
 
@@ -655,8 +655,8 @@ def pay():
 					tr_id = tr_id[-1][0]
 					tr_id = 'UP' + str(int(tr_id[2:]) + 1)
 					q = f"insert into upi_transactions(tr_id, sender, receiver, amount, tr_timestamp, upi_id) " \
-						f"values({tr_id}, {upidetails[chosenUpi][1]}, {payTo}, {amount}," \
-						f" {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}, {upidetails[chosenUpi][0]});"
+						f"values('{tr_id}', '{upidetails[chosenUpi][1]}', '{payTo}', '{amount}'," \
+						f" '{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}', '{upidetails[chosenUpi][0]}');"
 					mycursor.execute(q)
 					mydb.commit()
 					return redirect(url_for('pay'))
@@ -664,7 +664,7 @@ def pay():
 
 			elif trid == 4:
 				chooseAcc = None
-				q = f"select account_no from customer_account where c_id = {c_id};"
+				q = f"select account_no from customer_account where c_id = '{c_id}';"
 				mycursor.execute(q)
 				acc = mycursor.fetchall()
 				for i in range(len(acc)):
@@ -678,8 +678,8 @@ def pay():
 					tr_id = tr_id[-1][0]
 					tr_id = 'DR' + str(int(tr_id[2:]) + 1)
 					q = f"insert into direct_transactions(tr_id, sender, receiver, amount, tr_timestamp) " \
-						f"values({tr_id}, {acc[chooseAcc][0]}, {payTo}, {amount}," \
-						f" {datetime.now().strftime('%Y-%m-%d %H:%M:%S')});"
+						f"values('{tr_id}', '{acc[chooseAcc][0]}', '{payTo}', '{amount}'," \
+						f" '{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}');"
 					mycursor.execute(q)
 					mydb.commit()
 					return redirect(url_for('pay'))
