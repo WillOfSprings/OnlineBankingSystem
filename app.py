@@ -23,7 +23,7 @@ app.secret_key = "bankDB"
 @app.route('/', methods=['GET', 'POST'])
 def home():
 	if 'logged_in' in session and session['type'] == "c":
-		q = f"SELECT * FROM customer WHERE c_id = {session['usr']};"
+		q = f"SELECT * FROM customer WHERE c_id = '{session['usr']}';"
 		mycursor.execute(q)
 		customerDetails = mycursor.fetchone()
 		return render_template("home.html",
@@ -52,10 +52,12 @@ def login():
 
 	if form.validate_on_submit():
 		if form.type.data == "c":
-			ci = str(form.user.data)
-			q = f"select c_id from customer where c_id = '{ci}';"
-			mycursor.execute(q)
+			# q = "select c_id from customer where c_id = '%s'"
+			cust = form.user.data
+			print(cust)
+			mycursor.execute(f"select c_id from customer where c_id='{cust}';")
 			cid = mycursor.fetchone()
+			print(cid)
 			if cid is None:
 				return render_template("login.html", form=form, error="Invalid ID")
 			else:
