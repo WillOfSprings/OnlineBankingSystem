@@ -581,8 +581,8 @@ def pay():
 			form2 = TransferForm()
 			form2.tr.choices = []
 
-			q = f"select 1 as status where exists(select c_id from customer " \
-				f"where c_id = '{payTo}');"
+			q = f"select 1 as status where exists(select account_no from accounts " \
+				f"where account_no = '{payTo}');"
 			mycursor.execute(q)
 			if mycursor.fetchone() is None:
 				return redirect(url_for('pay'))
@@ -608,7 +608,7 @@ def pay():
 						f" '{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}', '{cards[chosenCard][0]}' );"
 					mycursor.execute(q)
 					mydb.commit()
-					return redirect(url_for('pay'))
+					return render_template('transfer.html', form=form2)
 				return render_template('transfer.html', form=form2)
 
 			elif trid == 2:
