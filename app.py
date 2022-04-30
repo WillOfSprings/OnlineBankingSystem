@@ -52,7 +52,8 @@ def login():
 
 	if form.validate_on_submit():
 		if form.type.data == "c":
-			q = f"select c_id from customer where c_id = {form.user.data};"
+			ci = str(form.user.data)
+			q = f"select c_id from customer where c_id = '{ci}';"
 			mycursor.execute(q)
 			cid = mycursor.fetchone()
 			if cid is None:
@@ -78,16 +79,16 @@ def login():
 
 		elif form.type.data == "a":
 			pass
-		# q = f"select a_id from admin where a_id = {form.user.data};"
-		# mycursor.execute(q)
-		# cid = mycursor.fetchone()
-		# if cid is None:
-		# 	return render_template("login.html", form=form)
-		# else:
-		# session['usr'] = form.user.data
-		# session['type'] = "a"
-		# session['logged_in'] = True
-		# return redirect(url_for('home'))
+	# q = f"select a_id from admin where a_id = {form.user.data};"
+	# mycursor.execute(q)
+	# cid = mycursor.fetchone()
+	# if cid is None:
+	# 	return render_template("login.html", form=form)
+	# else:
+	# session['usr'] = form.user.data
+	# session['type'] = "a"
+	# session['logged_in'] = True
+	# return redirect(url_for('home'))
 
 	return render_template("login.html", form=form)
 
@@ -575,6 +576,9 @@ def pay():
 			amount = form.amount.data
 			trid = form.tr.data
 
+			form2 = TransferForm()
+			form2.tr.choices = []
+
 			q = f"select 1 as status where exists(select c_id from customer " \
 				f"where c_id = {payTo});"
 			mycursor.execute(q)
@@ -587,8 +591,6 @@ def pay():
 				mycursor.execute(q)
 				cards = mycursor.fetchall()
 
-				form2 = TransferForm()
-				form2.tr.choices = []
 				for i in range(len(cards)):
 					form2.tr.choices.append((i, cards[i][0]))
 
@@ -605,16 +607,13 @@ def pay():
 					mycursor.execute(q)
 					mydb.commit()
 					return redirect(url_for('pay'))
-
+				return render_template('transfer.html', form=form2)
 
 			elif trid == 2:
 				chosenCard = None
 				q = f"select cc_no from has_cc where c_id = {c_id};"
 				mycursor.execute(q)
 				cards = mycursor.fetchall()
-
-				form2 = TransferForm()
-				form2.tr.choices = []
 				for i in range(len(cards)):
 					form2.tr.choices.append((i, cards[i][0]))
 
@@ -631,6 +630,7 @@ def pay():
 					mycursor.execute(q)
 					mydb.commit()
 					return redirect(url_for('pay'))
+				return render_template('transfer.html', form=form2)
 
 			elif trid == 3:
 				chosenUpi = None
@@ -641,9 +641,6 @@ def pay():
 					f"a.account_no = ca.account_no where ca.c_id = {c_id};"
 				mycursor.execute(q)
 				upidetails = mycursor.fetchall()
-
-				form2 = TransferForm()
-				form2.tr.choices = []
 
 				for i in range(len(upidetails)):
 					form2.tr.choices.append((i, upidetails[i][0]))
@@ -661,17 +658,13 @@ def pay():
 					mycursor.execute(q)
 					mydb.commit()
 					return redirect(url_for('pay'))
-
-
+				return render_template('transfer.html', form=form2)
 
 			elif trid == 4:
 				chooseAcc = None
 				q = f"select account_no from customer_account where c_id = {c_id};"
 				mycursor.execute(q)
 				acc = mycursor.fetchall()
-
-				form2 = TransferForm()
-				form2.tr.choices = []
 				for i in range(len(acc)):
 					form2.tr.choices.append((i, acc[i][0]))
 
@@ -688,8 +681,9 @@ def pay():
 					mycursor.execute(q)
 					mydb.commit()
 					return redirect(url_for('pay'))
+				return render_template('transfer.html', form=form2)
 
-
+		render_template('pay.html', form=form)
 
 
 	else:

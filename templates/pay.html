@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block head %} <Title> Pay </Title> {% endblock %}
+
+{% block body %}
+
+    <div class="container-md border">
+        <form method="post">
+
+            {{ form.hidden_tag() }}
+
+            <div class="col-md-6">
+            {{ form.tr.label(class="form-label") }}<br/>
+            {{ form.tr(class="form-select") }}
+            </div>
+
+            <div class="col-md-6">
+            {{ form.receiver.label(class="form-label") }}
+            {{ form.receiver(class="form-control") }}
+            </div><br/>
+            <div class="col-md-6">
+            {{ form.amount.label(class="form-label") }}
+            {{ form.amount(class="form-control") }}
+            </div><br/>
+            {{ form.submit(class="btn btn-primary") }}
+        </form>
+    </div>
+
+{% endblock %}

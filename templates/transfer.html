@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block head %} <Title> Transfer </Title> {% endblock %}
+
+{% block body %}
+
+    <div class="container-md border">
+        <form method="post">
+
+            {{ form.hidden_tag() }}
+
+            <div class="col-md-6">
+            {{ form.tr.label(class="form-label") }}<br/>
+            {{ form.tr(class="form-select") }}
+            </div>
+            <br/>
+            {{ form.submit(class="btn btn-primary") }}
+        </form>
+    </div>
+
+{% endblock %}
